@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Intern Hub — Clinical Companion V30</title>
+    <!-- Bootstrap RTL CSS -->
+    <link id="bootstrap-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- QRCode Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Local document extraction helpers (online CDN required) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb; --primary-hover: #1d4ed8; --secondary: #64748b; --success: #059669; 
+            --danger: #dc2626; --warning: #d97706; --info: #0284c7; --purple: #7c3aed;
+            --supreme-gold: #b45309;
+            --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; 
+            --text-muted: #64748b; --border-color: #e2e8f0;
+            --sidebar-bg: #0f172a; --sidebar-text: #f8fafc; --sidebar-hover: #1e293b; --sidebar-active: #2563eb;
+            --bottom-nav-bg: #ffffff; --cpr-bg: #fef2f2;
+        }
+        [data-theme="dark"] {
+            --primary: #3b82f6; --primary-hover: #60a5fa; --bg-body: #030712; --bg-card: #0f172a; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: #1e293b;
+            --sidebar-bg: #020617; --sidebar-text: #f8fafc; --sidebar-hover: #0f172a; --sidebar-active: #3b82f6;
+            --bottom-nav-bg: #0f172a; --cpr-bg: #450a0a;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            background-color: var(--bg-body); color: var(--text-main);
+            transition: background-color 0.25s, color 0.25s;
+            overflow-x: hidden; padding-bottom: 80px;
+        }
+        
+        .card { 
+            background-color: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.04); 
+            margin-bottom: 24px; transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+        .card:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06); }
+        
+        .form-control, .form-select { 
+            background-color: var(--bg-body); color: var(--text-main); border-color: var(--border-color);
+            border-radius: 10px; padding: 10px 14px; font-size: 14px;
+        }
+        .form-control:focus, .form-select:focus { 
+            background-color: var(--bg-card); color: var(--text-main); border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15); 
+        }
+        .list-group-item { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
+        
+        /* Modern Sidebar */
+        .sidebar { 
+            height: 100vh; background-color: var(--sidebar-bg); color: var(--sidebar-text); 
+            position: fixed; right: 0; top: 0; width: 270px; padding: 20px 12px; 
+            z-index: 1000; overflow-y: auto; box-shadow: -4px 0 25px rgba(0,0,0,0.08);
+        }
+        [dir="ltr"] .sidebar { right: auto; left: 0; box-shadow: 4px 0 25px rgba(0,0,0,0.08); }
+        .sidebar h4 { font-weight: 800; font-size: 1.2rem; margin-bottom: 15px; text-align: center; color: #fff; letter-spacing: -0.5px;}
+        .sidebar-badge { font-size: 0.65rem; background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 20px; font-weight: 600; margin-bottom: 25px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .sidebar .nav-group-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin: 20px 12px 8px; font-weight: 700; }
+        .sidebar a { 
+            color: #cbd5e1; text-decoration: none; padding: 10px 14px; display: flex; align-items: center; 
+            font-size: 13.5px; border-radius: 10px; margin-bottom: 4px; transition: all 0.2s; font-weight: 500;
+        }
+        .sidebar a i { width: 22px; text-align: center; font-size: 14px; }
+        .sidebar a:hover { background-color: var(--sidebar-hover); color: #fff; transform: translateX(-3px); }
+        [dir="ltr"] .sidebar a:hover { transform: translateX(3px); }
+        .sidebar a.active { background-color: var(--sidebar-active); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        
+        /* Main Content */
+        .main-content { margin-right: 270px; padding: 35px; min-height: 100vh; }
+        [dir="ltr"] .main-content { margin-right: 0; margin-left: 270px; }
+        .content-section { display: none; animation: fadeIn 0.25s ease; }
+        .content-section.active { display: block; }
+        .content-section.flex-active { display: flex; flex-direction: column; height: 85vh; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .stat-card { 
+            padding: 24px; border-radius: 16px; color: white; transition: transform 0.2s, box-shadow 0.2s; 
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.15); }
+        .bg-gradient-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .bg-gradient-success { background: linear-gradient(135deg, #059669, #047857); }
+        .bg-gradient-gold { background: linear-gradient(135deg, #d97706, #b45309); }
+        
+        /* Modern Bottom Nav */
+        .bottom-nav { 
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; 
+            background-color: var(--bottom-nav-bg); box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
+            z-index: 1000; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--border-color); 
+        }
+        .bottom-nav a { 
+            color: var(--text-muted); text-align: center; text-decoration: none; font-size: 11px; 
+            flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 500;
+        }
+        .bottom-nav a i { font-size: 18px; }
+        .bottom-nav a.active { color: var(--primary); font-weight: 700; }
+        
+        /* Mobile Menu */
+        #mobile-menu-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 70px; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 998; }
+        #mobile-menu { 
+            position: fixed; bottom: -100%; left: 0; right: 0; background: var(--bg-card); 
+            border-radius: 24px 24px 0 0; padding: 24px; z-index: 999; transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            max-height: 85vh; overflow-y: auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+        }
+        #mobile-menu.open { bottom: 70px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .menu-btn { 
+            background: var(--bg-body); border: 1px solid var(--border-color); padding: 14px 8px; 
+            border-radius: 14px; text-align: center; color: var(--text-main); display: flex; 
+            flex-direction: column; gap: 8px; text-decoration: none; font-size: 12px; font-weight: 600; 
+            transition: 0.2s;
+        }
+        .menu-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        @media (max-width: 768px) { 
+            .sidebar { display: none; } 
+            .main-content { margin-right: 0 !important; margin-left: 0 !important; padding: 16px; padding-bottom: 90px; } 
+            .bottom-nav { display: flex; } 
+        }
+
+        .task-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; border-bottom: 1px solid var(--border-color); }
+        .task-item.completed span { text-decoration: line-through; color: var(--text-muted); opacity: 0.7; }
+        .cpr-timer { font-size: 4rem; font-weight: 800; font-family: monospace; text-align: center; color: var(--danger); margin: 20px 0; letter-spacing: -2px; }
+        .cpr-card { background-color: var(--cpr-bg); border: 2px solid var(--danger); }
+        .mic-btn { cursor: pointer; color: var(--primary); transition: 0.2s; }
+        .mic-btn.recording { color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
+        
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        .cal-day { padding: 12px 4px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-body); cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s;}
+        .cal-day:hover { border-color: var(--primary); }
+        .cal-header { font-weight: 700; padding: 6px; color: var(--text-muted); font-size: 13px; }
+        .shift-morning { background-color: #d1e7dd !important; border-color: #badbcc !important; color: #0f5132 !important;}
+        .shift-night { background-color: #cff4fc !important; border-color: #b6effb !important; color: #055160 !important;}
+        .shift-off { background-color: #f8d7da !important; border-color: #f5c2c7 !important; color: #842029 !important;}
+
+        #pdf-viewer-wrapper { display: none; flex-direction: column; height: 100%; border-radius: 12px; overflow: hidden; background: #334155; }
+        .score-item { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 8px; margin-bottom: 4px; transition: 0.15s;}
+        .score-item:hover { background-color: var(--bg-body); }
+        
+        .chat-container { display: flex; flex-direction: column; height: 65vh; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 14px; position: relative; overflow: hidden; }
+        .chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-msg { max-width: 85%; padding: 14px 18px; border-radius: 16px; line-height: 1.6; font-size: 14.5px; position: relative; clear: both; white-space: pre-wrap; }
+        .msg-user { background-color: var(--primary); color: #fff; align-self: flex-start; border-top-right-radius: 4px; }
+        [dir="ltr"] .msg-user { align-self: flex-end; border-top-right-radius: 16px; border-top-left-radius: 4px; }
+        .msg-ai { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); align-self: flex-end; border-top-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        [dir="ltr"] .msg-ai { align-self: flex-start; border-top-left-radius: 16px; border-top-right-radius: 4px; }
+
+        @media print { body { background: white; color: black; } .sidebar, .bottom-nav, .btn, #mobile-menu-overlay, #mobile-menu { display: none !important; } .main-content { margin: 0; padding: 0; } .card { border: none; box-shadow: none; } }
+        .shift-report-container { padding: 30px; background: white; color: black; font-family: sans-serif; display: none; }
+        .fav-star { color: #f59e0b; cursor: pointer; transition: transform 0.2s;}
+        .fav-star:hover { transform: scale(1.2); }
+
+        /* Library Ultimate Pro Styles */
+        .lib-card { transition: 0.2s; border-right: 4px solid var(--primary); border-radius: 12px;}
+        [dir="ltr"] .lib-card { border-right: none; border-left: 4px solid var(--primary); }
+        .lib-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .filter-tab { border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-muted); padding: 8px 18px; font-size: 13.5px; cursor: pointer; transition: 0.2s; white-space: nowrap; font-weight: 500;}
+        .filter-tab.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 700; box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+
+        /* Auth Gate Overlay */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--bg-card); border-radius: 20px; padding: 35px; width: 100%; max-width: 420px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
+        }
+
+        /* ER Monitor Box */
+        .er-monitor { background: #090d16; border: 2px solid #1e293b; border-radius: 12px; padding: 15px; color: #38bdf8; font-family: monospace; }
+        .er-stat { text-align: center; }
+        .er-stat .val { font-size: 1.6rem; font-weight: bold; }
+        .er-stat .lbl { font-size: 0.75rem; color: #94a3b8; }
+        
+        .branch-badge { font-size: 0.75rem; background: var(--info); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+
+        /* Top Bar Language Switcher */
+        .top-bar-lang {
+            display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border-color);
+            padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .app-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; margin-bottom:14px; }
+        .global-search { max-width:420px; min-width:180px; flex:1; }
+        .safety-banner { border:1px solid #f59e0b; background:rgba(245,158,11,.10); color:var(--text-main); border-radius:12px; padding:10px 14px; font-size:12px; margin-bottom:18px; }
+        .feature-pill { display:inline-flex; gap:6px; align-items:center; padding:5px 9px; border-radius:999px; background:var(--bg-body); border:1px solid var(--border-color); color:var(--text-muted); font-size:12px; }
+        .task-meta { display:block; color:var(--text-muted); font-size:11px; margin-top:4px; }
+        :focus-visible { outline:3px solid rgba(37,99,235,.5); outline-offset:2px; }
+        @media (max-width:768px) { .app-toolbar { align-items:stretch; } .global-search { max-width:none; width:100%; } }
+    </style>
+</head>
+<body>
+
+    <!-- AUTHENTICATION GATE OVERLAY -->
+    <div id="auth-overlay">
+        <div class="auth-card text-center">
+            <div class="mb-4">
+                <i class="fas fa-user-md fa-3x text-primary mb-2"></i>
+                <h3 class="fw-bold" data-i18n="app_title">Intern Hub</h3>
+                <p class="text-muted small" data-i18n="app_subtitle">بوابة نبطشيات طبيب الامتياز الاحترافية</p>
+            </div>
+
+            <!-- Auth Tabs -->
+            <ul class="nav nav-pills nav-fill mb-4" id="authTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold py-2" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" data-i18n="login_tab">تسجيل الدخول</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold py-2" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" data-i18n="register_tab">حساب جديد</button>
+                </li>
+            </ul>
+
+            <div class="tab-content text-start" id="authTabContent">
+                <!-- Login Pane -->
+                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="email_label">البريد الإلكتروني أو اسم المستخدم</label>
+                            <input type="text" id="login-user" class="form-control" required placeholder="doctor@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="pass_label">كلمة المرور</label>
+                            <input type="password" id="login-pass" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mb-3" data-i18n="login_btn">تسجيل الدخول</button>
+                    </form>
+                </div>
+
+                <!-- Register Pane -->
+                <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="name_label">اسم الطبيب الكامل</label>
+                            <input type="text" id="reg-name" class="form-control" required placeholder="د. أحمد محمد">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="email_label">البريد الإلكتروني</label>
+                            <input type="email" id="reg-email" class="form-control" required placeholder="doctor@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="pass_label">كلمة المرور</label>
+                            <input type="password" id="reg-pass" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold py-2 mb-3" data-i18n="register_btn">إنشاء الحساب</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Guest Mode Option -->
+            <div class="border-top pt-3 mt-2 text-center">
+                <button class="btn btn-outline-secondary w-100 fw-bold py-2 btn-sm" onclick="handleGuestMode()" data-i18n="guest_btn">
+                    <i class="fas fa-user-secret me-1"></i> متابعة كضيف (صلاحيات محدودة)
+                </button>
+                <small class="text-muted d-block mt-2" style="font-size: 11px;" data-i18n="guest_note">تنبيه: هذه نسخة محلية تجريبية؛ تسجيل الدخول لا يتحقق من الهوية ولا توجد مزامنة سحابية.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar (Desktop) -->
+    <div class="sidebar">
+        <div>
+            <h4><i class="fas fa-stethoscope text-primary me-2"></i> Intern Hub</h4>
+            <div class="text-center"><span class="sidebar-badge" id="sidebar-user-badge"><i class="fas fa-crown me-1"></i> Supreme V26</span></div>
+        </div>
+        <div class="px-2 mb-3"><button class="btn btn-outline-light w-100 btn-sm rounded-pill fw-bold" onclick="toggleDarkMode()" style="font-size: 12.5px; border-color: #334155;"><i class="fas fa-moon me-1"></i> <span data-i18n="dark_mode">وضع الرؤية الليلية</span></button></div>
+        
+        <div class="nav-group-title" data-i18n="grp_main">الرئيسية والمهام</div>
+        <a href="#" onclick="showSection('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-home me-2"></i> <span data-i18n="nav_dashboard">الرئيسية</span></a>
+        <a href="#" onclick="showSection('tasks')" id="nav-tasks"><i class="fas fa-check-square me-2"></i> <span data-i18n="nav_tasks">المهام والمنبهات</span></a>
+        <a href="#" onclick="showSection('notes')" id="nav-notes"><i class="fas fa-microphone text-success me-2"></i> <span data-i18n="nav_notes">المذكرات الصوتية</span></a>
+        <a href="#" onclick="showSection('sbar')" id="nav-sbar"><i class="fas fa-exchange-alt text-warning me-2"></i> <span data-i18n="nav_sbar">تسليم الحالات (QR/SBAR)</span></a>
+        <a href="#" onclick="showSection('cases')" id="nav-cases"><i class="fas fa-file-medical-alt me-2"></i> <span data-i18n="nav_cases">سجل الحالات</span></a>
+        
+        <div class="nav-group-title" data-i18n="grp_emergency">أدوات العناية والطوارئ</div>
+        <a href="#" onclick="showSection('dripcalc')" id="nav-dripcalc" class="border-start border-3 border-warning"><i class="fas fa-syringe text-warning me-2"></i> <span data-i18n="nav_dripcalc">حاسبة الجرعات الوريدية (Drip)</span></a>
+        <a href="#" onclick="showSection('labguide')" id="nav-labguide" class="border-start border-3 border-success"><i class="fas fa-vial text-success me-2"></i> <span data-i18n="nav_labguide">دليل التحاليل الشاذة (Labs)</span></a>
+        <a href="#" onclick="showSection('simulator')" id="nav-simulator" class="border-start border-3 border-info"><i class="fas fa-stethoscope text-info me-2"></i> <span data-i18n="nav_simulator">محاكي الطوارئ (حسب البرانش) ⭐️</span></a>
+        
+        <div class="nav-group-title" data-i18n="grp_library">المكتبة الذكية والتدريب</div>
+        <a href="#" onclick="showSection('library')" id="nav-library"><i class="fas fa-file-pdf text-danger me-2"></i> <span data-i18n="nav_library">المكتبة الطبية الاحترافية ⭐️</span></a>
+        <a href="#" onclick="showSection('analytics')" id="nav-analytics"><i class="fas fa-chart-pie text-success me-2"></i> <span data-i18n="nav_analytics">إحصائيات الامتياز</span></a>
+        
+        <div class="nav-group-title" data-i18n="grp_tools">الأدوات الطبية الأساسية</div>
+        <a href="#" onclick="showSection('flashcards')" id="nav-flashcards"><i class="fas fa-graduation-cap text-info me-2"></i> <span data-i18n="nav_flashcards">بنك الأسئلة (Flashcards)</span></a>
+        <a href="#" onclick="showSection('interactions')" id="nav-interactions"><i class="fas fa-ban text-danger me-2"></i> <span data-i18n="nav_interactions">التداخلات الدوائية</span></a>
+        <a href="#" onclick="showSection('shock')" id="nav-shock"><i class="fas fa-heart-pulse text-danger me-2"></i> <span data-i18n="nav_shock">مؤشر الصدمة (Shock Index)</span></a>
+        <a href="#" onclick="showSection('soap')" id="nav-soap"><i class="fas fa-file-signature text-primary me-2"></i> <span data-i18n="nav_soap">قوالب SOAP الطبية</span></a>
+        <a href="#" onclick="showSection('pedsfluids')" id="nav-pedsfluids"><i class="fas fa-baby text-info me-2"></i> <span data-i18n="nav_pedsfluids">سوائل الأطفال (Holliday)</span></a>
+        <a href="#" onclick="showSection('abx')" id="nav-abx"><i class="fas fa-capsules text-success me-2"></i> <span data-i18n="nav_abx">المضادات وجرعات الكلى</span></a>
+        <a href="#" onclick="showSection('electrolytes')" id="nav-electrolytes"><i class="fas fa-vial text-info me-2"></i> <span data-i18n="nav_electrolytes">تصحيح الأملاح</span></a>
+        <a href="#" onclick="showSection('procedures')" id="nav-procedures"><i class="fas fa-hands-helping text-primary me-2"></i> <span data-i18n="nav_procedures">خطوات الإجراءات</span></a>
+        <a href="#" onclick="showSection('cpr')" id="nav-cpr"><i class="fas fa-heartbeat text-danger me-2"></i> <span data-i18n="nav_cpr">إنعاش القلب (CPR)</span></a>
+        <a href="#" onclick="showSection('drugs')" id="nav-drugs"><i class="fas fa-pills text-primary me-2"></i> <span data-i18n="nav_drugs">جرعات الأطفال الطارئة</span></a>
+        <a href="#" onclick="showSection('calculators')" id="nav-calculators"><i class="fas fa-calculator text-info me-2"></i> <span data-i18n="nav_calculators">الحاسبات و ABG</span></a>
+        <a href="#" onclick="showSection('scores')" id="nav-scores"><i class="fas fa-clipboard-list text-warning me-2"></i> <span data-i18n="nav_scores">التقييمات السريرية</span></a>
+        <a href="#" onclick="showSection('ecg')" id="nav-ecg"><i class="fas fa-wave-square text-danger me-2"></i> <span data-i18n="nav_ecg">دليل رسم القلب</span></a>
+        
+        <div class="nav-group-title" data-i18n="grp_system">النظام والذكاء الاصطناعي</div>
+        <a href="#" onclick="showSection('ai')" id="nav-ai"><i class="fas fa-robot" style="color:var(--purple);"></i> <span data-i18n="nav_ai">المساعد الذكي (AI)</span></a>
+        <a href="#" onclick="showSection('settings')" id="nav-settings"><i class="fas fa-cog me-2"></i> <span data-i18n="nav_settings">الإعدادات والجداول</span></a>
+        <a href="#" onclick="handleLogout()" class="text-danger mt-3"><i class="fas fa-sign-out-alt me-2"></i> <span data-i18n="nav_logout">تسجيل الخروج</span></a>
+    </div>
+
+    <!-- Bottom Nav (Mobile) -->
+    <div class="bottom-nav" id="bottom-nav">
+        <a href="#" onclick="showSection('dashboard')" class="nav-item-mob active" id="mob-dashboard"><i class="fas fa-home"></i><span data-i18n="mob_home">الرئيسية</span></a>
+        <a href="#" onclick="showSection('simulator')" class="nav-item-mob" id="mob-simulator"><i class="fas fa-stethoscope text-info"></i><span data-i18n="mob_sim">المحاكي</span></a>
+        <a href="#" onclick="showSection('library')" class="nav-item-mob" id="mob-library"><i class="fas fa-file-pdf text-danger"></i><span data-i18n="mob_lib">المكتبة</span></a>
+        <a href="#" onclick="showSection('tasks')" class="nav-item-mob" id="mob-tasks"><i class="fas fa-bell"></i><span data-i18n="mob_tasks">المهام</span></a>
+        <a href="#" onclick="toggleMobileMenu()" class="nav-item-mob" id="mob-menu"><i class="fas fa-th-large"></i><span data-i18n="mob_more">المزيد</span></a>
+    </div>
+
+    <!-- Mobile More Menu -->
+    <div id="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu">
+        <h6 class="fw-bold mb-3 border-bottom pb-2" data-i18n="mob_menu_title">القائمة الكاملة (V26 Supreme)</h6>
+        <div class="menu-grid">
+            <a href="#" onclick="showSection('simulator'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-stethoscope fa-2x text-info"></i> <span data-i18n="nav_simulator">محاكي الطوارئ</span></a>
+            <a href="#" onclick="showSection('dripcalc'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-syringe fa-2x text-warning"></i> <span data-i18n="nav_dripcalc">جرعات Drip</span></a>
+            <a href="#" onclick="showSection('labguide'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-vial fa-2x text-success"></i> <span data-i18n="nav_labguide">دليل Labs</span></a>
+            <a href="#" onclick="showSection('library'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-file-pdf fa-2x text-danger"></i> <span data-i18n="nav_library">المكتبة ⭐️</span></a>
+            <a href="#" onclick="showSection('analytics'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-chart-pie fa-2x text-success"></i> <span data-i18n="nav_analytics">إحصائيات</span></a>
+            <a href="#" onclick="showSection('flashcards'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-graduation-cap fa-2x text-info"></i> <span data-i18n="nav_flashcards">أسئلة</span></a>
+            <a href="#" onclick="showSection('interactions'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-ban fa-2x text-danger"></i> <span data-i18n="nav_interactions">تداخلات</span></a>
+            <a href="#" onclick="showSection('soap'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-file-signature fa-2x text-primary"></i> <span data-i18n="nav_soap">SOAP</span></a>
+            <a href="#" onclick="showSection('cpr'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-heartbeat fa-2x text-danger"></i> <span data-i18n="nav_cpr">CPR</span></a>
+            <a href="#" onclick="showSection('ai'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-robot fa-2x" style="color:var(--purple);"></i> AI</a>
+            <a href="#" onclick="toggleDarkMode(); toggleMobileMenu()" class="menu-btn"><i class="fas fa-moon fa-2x text-dark"></i> <span data-i18n="dark_mode">ليلي</span></a>
+            <a href="#" onclick="handleLogout()" class="menu-btn text-danger"><i class="fas fa-sign-out-alt fa-2x"></i> <span data-i18n="nav_logout">خروج</span></a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="app-toolbar">
+            <div class="global-search input-group">
+                <span class="input-group-text bg-transparent"><i class="fas fa-search"></i></span>
+                <input id="global-search" class="form-control" type="search" placeholder="بحث سريع داخل الأقسام والميزات…" aria-label="بحث سريع" onkeydown="if(event.key==='Enter') runGlobalSearch()">
+                <button class="btn btn-primary" type="button" onclick="runGlobalSearch()">بحث</button>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-primary btn-sm" onclick="showSection('tasks')"><i class="fas fa-plus me-1"></i> مهمة</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="exportData()"><i class="fas fa-download me-1"></i> نسخة احتياطية</button>
+            </div>
+        </div>
+        <div class="safety-banner" role="note"><i class="fas fa-triangle-exclamation me-1"></i><strong>تنبيه سريري:</strong> هذه أداة تعليمية وتنظيمية وليست بديلاً عن بروتوكول المستشفى أو مراجعة الطبيب/الصيدلي. تحقّق من الجرعات والتركيزات والوحدات وموانع الاستعمال بشكل مستقل قبل أي استخدام سريري. لا تدخل بيانات تعريفية للمرضى.</div>
+        <!-- TOP BAR LANGUAGE SWITCHER -->
+        <div class="d-flex justify-content-end align-items-center mb-3">
+            <div class="top-bar-lang">
+                <i class="fas fa-globe text-primary"></i>
+                <select id="top-lang-selector" class="form-select form-select-sm border-0 bg-transparent fw-bold shadow-none" onchange="switchLanguage(this.value)" style="width: auto; cursor: pointer;">
+                    <option value="ar">العربية</option>
+                    <option value="en">English</option>
+                    <option value="he">עברית</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 1. Dashboard -->
+        <div id="dashboard" class="content-section active">
+            <div class="d-flex justify-content-between align-items-center mb-4"><h3 class="fw-bold mb-0"><span data-i18n="welcome_msg">مرحباً يا دكتور</span> 👋 (<span id="user-display-name" class="text-primary">طبيب</span>)</h3><span class="badge bg-primary rounded-pill px-3 py-2" id="current-date"></span></div>
+            <div class="row">
+                <div class="col-md-4 col-6 mb-3"><div class="stat-card bg-gradient-primary h-100"><i class="fas fa-bell fa-2x mb-3 opacity-75"></i><div><h6 class="mb-1 opacity-90 font-monospace" data-i18n="stat_tasks">مهام اليوم</h6><h2 id="dash-tasks-count" class="fw-bold mb-0">0</h2></div></div></div>
+                <div class="col-md-4 col-6 mb-3"><div class="stat-card bg-gradient-success h-100"><i class="fas fa-book-medical fa-2x mb-3 opacity-75"></i><div><h6 class="mb-1 opacity-90 font-monospace" data-i18n="stat_notes">مذكراتك</h6><h2 id="dash-notes-count" class="fw-bold mb-0">0</h2></div></div></div>
+                <div class="col-md-4 col-12 mb-3"><div class="stat-card bg-gradient-gold h-100 position-relative" style="cursor:pointer;" onclick="showSection('simulator')"><i class="fas fa-stethoscope fa-2x mb-3 opacity-75"></i><div><h6 class="mb-1 opacity-90 font-monospace" data-i18n="stat_sim">محاكي الطوارئ بالبرانشات</h6><h5 class="fw-bold mb-0 mt-1"><span data-i18n="start_train">ابدأ التدريب</span> <i class="fas fa-arrow-left ms-1"></i></h5></div></div></div>
+            </div>
+            <div class="card p-4 mt-3 border-start border-4 border-info">
+                <h5 class="fw-bold text-info"><i class="fas fa-globe me-2"></i> <span data-i18n="dash_title">تحديث زر اللغات العلوي (V26 Supreme)</span></h5>
+                <p class="mb-0 text-muted small" data-i18n="dash_desc">تم نقل وتسهيل تبديل اللغات (العربية، الإنجليزية، العبرية) ليصبح في أعلى الشاشة لسهولة الوصول إليه فوراً.</p>
+            </div>
+        </div>
+
+        <!-- UPGRADED BY BRANCH: 8. Emergency Simulator Pro (V26 Supreme) -->
+        <div id="simulator" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0"><i class="fas fa-stethoscope text-info ms-2"></i> <span data-i18n="sim_header">محاكي الطوارئ (مقسّم حسب البرانشات)</span></h3>
+                <span class="badge bg-info text-dark px-3 py-2 fw-bold" data-i18n="sim_badge">بنك الحالات السريرية ⭐️</span>
+            </div>
+            
+            <div class="card p-4 border-info border-start border-4 shadow-sm">
+                <!-- Start Screen -->
+                <div id="sim-start-screen">
+                    <div class="text-center py-3 mb-3">
+                        <i class="fas fa-hospital fa-3x text-info mb-2 opacity-75"></i>
+                        <h4 class="fw-bold" data-i18n="sim_select_branch">اختر التخصص أو البرانش الطبي للتدريب:</h4>
+                        <p class="text-muted small" data-i18n="sim_select_desc">اختر التخصص لاختبار تعاملك مع الحالات الحرجة الخاصة به في الاستقبال.</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Internal Medicine -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-primary" data-i18n="branch_med">الباطنة العامة</span>
+                                <h6 class="fw-bold" data-i18n="branch_med_title">حالات الباطنة الطارئة</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary fw-bold text-start" onclick="startSimPro('dka')"><i class="fas fa-bolt me-1 text-danger"></i> DKA Crisis</button>
+                                    <button class="btn btn-sm btn-outline-primary fw-bold text-start" onclick="startSimPro('gi_bleed')"><i class="fas fa-tint me-1 text-danger"></i> Upper GI Bleeding</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ER & Critical Care -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-danger" data-i18n="branch_er">الطوارئ والعناية</span>
+                                <h6 class="fw-bold" data-i18n="branch_er_title">حالات العناية والصدمات</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-danger fw-bold text-start" onclick="startSimPro('septic_shock')"><i class="fas fa-virus me-1"></i> Septic Shock</button>
+                                    <button class="btn btn-sm btn-outline-danger fw-bold text-start" onclick="startSimPro('anaphylaxis')"><i class="fas fa-allergies me-1"></i> Anaphylactic Shock</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cardiology -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-success" data-i18n="branch_cardio">القلبية والحرجة</span>
+                                <h6 class="fw-bold" data-i18n="branch_cardio_title">حالات القلب الطارئة</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-success fw-bold text-start" onclick="startSimPro('stemi')"><i class="fas fa-heartbeat me-1"></i> Acute STEMI</button>
+                                    <button class="btn btn-sm btn-outline-success fw-bold text-start" onclick="startSimPro('svt')"><i class="fas fa-wave-square me-1"></i> SVT / Arrhythmia</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pediatrics -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-warning text-dark" data-i18n="branch_peds">طب الأطفال</span>
+                                <h6 class="fw-bold" data-i18n="branch_peds_title">طوارئ الأطفال</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-warning text-dark fw-bold text-start" onclick="startSimPro('peds_asthma')"><i class="fas fa-lungs me-1"></i> Severe Asthmatic Attack</button>
+                                    <button class="btn btn-sm btn-outline-warning text-dark fw-bold text-start" onclick="startSimPro('peds_dehydration')"><i class="fas fa-child me-1"></i> Severe Dehydration</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Surgery -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-secondary" data-i18n="branch_surg">الجراحة العامة</span>
+                                <h6 class="fw-bold" data-i18n="branch_surg_title">الطوارئ الجراحية</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold text-start" onclick="startSimPro('acute_abdomen')"><i class="fas fa-procedures me-1"></i> Acute Abdomen / Appendicitis</button>
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold text-start" onclick="startSimPro('trauma')"><i class="fas fa-car-crash me-1"></i> Polytrauma Assessment</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OB/GYN -->
+                        <div class="col-md-4">
+                            <div class="card p-3 h-100 border shadow-sm">
+                                <span class="branch-badge bg-purple" style="background:var(--purple);" data-i18n="branch_obgyn">نساء وتوليد</span>
+                                <h6 class="fw-bold" data-i18n="branch_obgyn_title">طوارئ النسا والتوليد</h6>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-dark fw-bold text-start" onclick="startSimPro('eclampsia')"><i class="fas fa-female me-1"></i> Eclampsia / Preeclampsia</button>
+                                    <button class="btn btn-sm btn-outline-dark fw-bold text-start" onclick="startSimPro('aph')"><i class="fas fa-tint me-1"></i> Antepartum Hemorrhage</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Active Screen -->
+                <div id="sim-game-screen" style="display:none;">
+                    <!-- ER Monitor Header -->
+                    <div class="er-monitor mb-4 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 border-end border-secondary mb-2 mb-md-0">
+                                <span class="badge bg-danger mb-1" id="sim-case-badge">حالة حرجة نشطة</span>
+                                <h5 class="text-white mb-0" id="sim-patient-name">مريض طوارئ</h5>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row g-2">
+                                    <div class="col-3 er-stat"><div class="val text-danger" id="sim-hr">--</div><div class="lbl">نبض (HR)</div></div>
+                                    <div class="col-3 er-stat"><div class="val text-warning" id="sim-bp">--</div><div class="lbl">ضغط (BP)</div></div>
+                                    <div class="col-3 er-stat"><div class="val text-info" id="sim-spo2">--</div><div class="lbl">أكسجين (SpO2)</div></div>
+                                    <div class="col-3 er-stat"><div class="val text-success" id="sim-score">0</div><div class="lbl">النقاط</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Question / Scenario Box -->
+                    <div class="p-4 bg-light rounded mb-4 border">
+                        <h5 class="fw-bold text-dark mb-2" id="sim-q-title">العنوان</h5>
+                        <p class="text-secondary mb-0" id="sim-q-desc" style="white-space: pre-wrap; line-height: 1.6;">الوصف...</p>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div class="d-grid gap-2 mb-3" id="sim-q-options"></div>
+
+                    <!-- Feedback Box -->
+                    <div class="p-3 rounded mb-3" id="sim-feedback-box" style="display:none;"></div>
+
+                    <!-- Action Controls -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <button class="btn btn-secondary fw-bold px-4" onclick="resetSimPro()"><i class="fas fa-arrow-right me-1"></i> <span data-i18n="sim_exit">إنهاء وخروج</span></button>
+                        <button class="btn btn-info fw-bold text-dark px-4" onclick="nextSimStage()" id="sim-next-btn" style="display:none;"><span data-i18n="sim_next">المرحلة التالية</span> <i class="fas fa-arrow-left ms-1"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: 2. Infusion & Inotropic Drip Calculator -->
+        <div id="dripcalc" class="content-section">
+            <h3 class="mb-4 fw-bold"><i class="fas fa-syringe text-warning ms-2"></i> <span data-i18n="drip_header">حاسبة الحقن الآلي المستمر (Inotropic Drip Calculator)</span></h3>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card p-4 h-100 shadow-sm border-warning border-start border-4">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2" data-i18n="drip_settings">⚙️ إعدادات الحقن الآلي (Syringe Pump)</h5>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small" data-i18n="drip_drug_lbl">اختر الدواء:</label>
+                            <select id="drip-drug" class="form-select" onchange="calcDrip()">
+                                <option value="noradrenaline">Noradrenaline (أدرينالين/نورابينفرين)</option>
+                                <option value="adrenaline">Adrenaline (إبينفرين)</option>
+                                <option value="dopamine">Dopamine (دوبامين)</option>
+                                <option value="dobutamine">Dobutamine (دوبيوتامين)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small" data-i18n="drip_wt_lbl">وزن المريض (kg):</label>
+                            <input type="number" id="drip-wt" class="form-control" placeholder="مثال: 70" oninput="calcDrip()">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small" data-i18n="drip_dose_lbl">الجرعة المطلوبة (mcg/kg/min):</label>
+                            <input type="number" step="0.05" id="drip-dose" class="form-control" placeholder="مثال: 0.1" oninput="calcDrip()">
+                        </div>
+                        <div class="p-3 bg-light rounded text-center mt-auto border">
+                            <h6 class="text-muted mb-1 small" data-i18n="drip_rate_lbl">السرعة المطلوبة على جهاز الحقن:</h6>
+                            <h3 class="fw-bold text-warning mb-0"><span id="drip-result">--</span> <span class="fs-6">ml/hr</span></h3>
+                            <small class="text-secondary" id="drip-formula-note"></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card p-4 h-100 shadow-sm">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2" data-i18n="drip_prep_title">💡 طريقة التحضير القياسية (Standard Prep):</h5>
+                        <ul class="text-muted small lh-lg mb-0">
+                            <li><b>Noradrenaline / Adrenaline:</b> 4 mg على سرنجة 50 مل (محلول ملح أو جلوكوز 5%). (التركيز = 80 ميكروغرام/مل).</li>
+                            <li><b>Dopamine / Dobutamine:</b> 200 mg على سرنجة 50 مل. (التركيز = 4000 ميكروغرام/مل).</li>
+                            <li data-i18n="drip_prep_note"><i>تأكد دائماً من مراجعة التركيز المسجل على السرنجة قبل الضبط على الجهاز.</i></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: 3. Lab Abnormalities Quick Guide -->
+        <div id="labguide" class="content-section">
+            <h3 class="mb-4 fw-bold"><i class="fas fa-vial text-success ms-2"></i> <span data-i18n="lab_header">دليل التحاليل الشاذة السريع (Lab Abnormalities Guide)</span></h3>
+            <div class="card p-4 shadow-sm border-success border-start border-4">
+                <p class="text-muted small" data-i18n="lab_desc">اختر التحليل لمعرفة الأسباب الفورية والإجراء العلاجي السريع بالاستقبال:</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <select id="lab-select" class="form-select fw-bold" onchange="showLabGuide()">
+                            <option value="" disabled selected data-i18n="lab_select_default">-- اختر التحليل أو النتيجة --</option>
+                            <option value="hyponatremia">الصوديوم منخفض (Hyponatremia &lt; 135)</option>
+                            <option value="hyperkalemia">البوتاسيوم مرتفع (Hyperkalemia &gt; 5.5)</option>
+                            <option value="hypokalemia">البوتاسيوم منخفض (Hypokalemia &lt; 3.5)</option>
+                            <option value="troponin">تروبونين مرتفع (High Troponin)</option>
+                            <option value="cr_high">كرياتينين مرتفع (High Creatinine / AKI)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="p-4 bg-light rounded border" id="lab-guide-box" style="min-height: 140px;" data-i18n="lab_box_default">
+                    اختر تحليلاً من القائمة بالأعلى لعرض التفاصيل الإكلينيكية الفورية.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Professional PDF Library -->
+        <div id="library" class="content-section flex-active">
+            <div id="library-dashboard" class="h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0 fw-bold"><i class="fas fa-book-reader text-danger ms-2"></i> <span data-i18n="lib_header">المكتبة الطبية الاحترافية</span></h3>
+                    <div>
+                        <div class="d-flex flex-wrap gap-2"><div class="d-flex gap-1"><button class="btn btn-outline-secondary btn-sm" onclick="exportLibraryBackup()" title="نسخة كاملة تتضمن ملفات PDF"><i class="fas fa-box-archive"></i> نسخة كاملة</button><button class="btn btn-outline-secondary btn-sm" onclick="exportLibraryManifest()" title="تصدير فهرس المكتبة"><i class="fas fa-file-export"></i> الفهرس</button><label class="btn btn-outline-secondary btn-sm mb-0" title="استعادة نسخة ZIP">استعادة<input type="file" accept=".zip,application/zip" hidden onchange="importLibraryBackup(event)"></label></div><button class="btn btn-danger fw-bold shadow-sm rounded-pill px-4" onclick="checkPermissionAndUpload()"><i class="fas fa-cloud-upload-alt me-1"></i> <span data-i18n="lib_upload">رفع مرجع PDF</span></button></div>
+                        <input type="file" id="pdf-upload" accept="application/pdf" multiple style="display: none;">
+                    </div>
+                </div>
+
+                <div class="card p-3 mb-3 border-0 shadow-sm">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="lib-search" class="form-control border-start-0" placeholder="ابحث باسم المرجع أو التاج أو الملاحظات..." oninput="renderLibrary()" data-i18n-placeholder="lib_search_placeholder">
+                    </div>
+                    <div class="d-flex gap-2 overflow-auto pb-1" id="lib-category-tabs">
+                        <button class="filter-tab active" onclick="setLibCategory('الكل', this)"><span data-i18n="cat_all">الكل</span> <span class="badge bg-light text-dark ms-1" id="cnt-all">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('المفضلة', this)"><span data-i18n="cat_fav">المفضلة ⭐️</span> <span class="badge bg-light text-dark ms-1" id="cnt-fav">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('كتب طبية (Textbooks)', this)"><span data-i18n="cat_textbooks">كتب طبية</span> <span class="badge bg-light text-dark ms-1" id="cnt-textbooks">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('إرشادات (Guidelines)', this)"><span data-i18n="cat_guidelines">إرشادات Guidelines</span> <span class="badge bg-light text-dark ms-1" id="cnt-guidelines">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('خوارزميات (Algorithms)', this)"><span data-i18n="cat_algorithms">خوارزميات</span> <span class="badge bg-light text-dark ms-1" id="cnt-algorithms">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('ملازم ومذكرات (Notes)', this)"><span data-i18n="cat_notes">ملازم شخصية</span> <span class="badge bg-light text-dark ms-1" id="cnt-notes">0</span></button>
+                    </div><div class="row g-2 mt-1"><div class="col-12 col-md-4"><label class="small text-muted" for="lib-sort">ترتيب المراجع</label><select id="lib-sort" class="form-select form-select-sm" onchange="renderLibrary()"><option value="recent">الأحدث إضافة</option><option value="name">الاسم أ–ي</option><option value="size">حجم الملف</option><option value="oldest">الأقدم إضافة</option></select></div><div class="col-12 col-md-8 small text-muted d-flex align-items-end" id="lib-storage-info">تُحفظ الملفات على هذا الجهاز داخل المتصفح.</div></div>
+                </div>
+
+                <div id="library-content" class="overflow-auto pb-4 flex-grow-1">
+                    <div class="text-center text-muted mt-5" id="lib-empty-state">
+                        <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                        <h5 data-i18n="lib_empty_title">المكتبة فارغة</h5>
+                        <p class="small" data-i18n="lib_empty_desc">قم برفع مراجعك الطبية (PDF). سيتم تنظيمها وحفظها بشكل دائم على جهازك بدون إنترنت.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pdf-viewer-wrapper">
+                <div class="pdf-header">
+                    <h6 class="mb-0 text-truncate" id="current-pdf-title" style="max-width:60%;">مستعرض</h6>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="openPdfNative()" title="فتح في نافذة جديدة"><i class="fas fa-external-link-alt"></i></button>
+                        <button class="btn btn-sm btn-danger ms-1" onclick="closePdf()" title="إغلاق"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div id="viewer-container" class="flex-grow-1 bg-dark text-white d-flex flex-column align-items-center justify-content-center p-3"></div>
+            </div>
+        </div>
+
+        <!-- 5. Tasks -->
+        <div id="tasks" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-check-square text-primary ms-2"></i> <span data-i18n="nav_tasks">المهام (مع المنبه)</span></h3><div class="card p-3 p-md-4 border-primary border-start border-4"><form id="task-form" class="row g-2 mb-3 align-items-center"><div class="col-md-7 col-12"><input type="text" id="task-input" class="form-control" placeholder="أضف مهمة..." required data-i18n-placeholder="task_placeholder"></div><div class="col-md-3 col-8"><select id="task-timer" class="form-select"><option value="0" data-i18n="t_no_alarm">بدون منبه</option><option value="15" data-i18n="t_15">تنبيه بعد 15 دقيقة</option><option value="30" data-i18n="t_30">تنبيه بعد نصف ساعة</option><option value="60" data-i18n="t_60">تنبيه بعد 1 ساعة</option></select></div><div class="col-md-2 col-4"><button type="submit" class="btn btn-primary w-100 fw-bold" data-i18n="btn_add">إضافة</button></div></form><div id="tasks-list" class="list-group list-group-flush gap-2 mt-3"></div></div></div>
+
+        <!-- 6. Notes -->
+        <div id="notes" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-microphone text-success ms-2"></i> <span data-i18n="nav_notes">المذكرات (تدعم الصوت)</span></h3><div class="row"><div class="col-lg-4 mb-4"><div class="card p-4 h-100"><form id="note-form"><select id="note-dept" class="form-select mb-3" required><option value="" disabled selected data-i18n="dept_select">القسم...</option><option value="باطنة" data-i18n="dept_med">باطنة</option><option value="جراحة" data-i18n="dept_surg">جراحة</option><option value="طوارئ" data-i18n="dept_er">طوارئ</option></select><div class="input-group mb-3"><input type="text" id="note-title" class="form-control" placeholder="العنوان" required data-i18n-placeholder="note_title_ph"><span class="input-group-text mic-btn" onclick="startDictation('note-title')"><i class="fas fa-microphone"></i></span></div><div class="input-group mb-3"><textarea id="note-content" class="form-control" rows="4" placeholder="التفاصيل..." required data-i18n-placeholder="note_desc_ph"></textarea><span class="input-group-text mic-btn" onclick="startDictation('note-content')"><i class="fas fa-microphone"></i></span></div><button type="submit" class="btn btn-success w-100 fw-bold" data-i18n="btn_save">حفظ</button></form></div></div><div class="col-lg-8"><div class="row" id="notes-list"></div></div></div></div>
+
+        <!-- 7. SBAR Handover -->
+        <div id="sbar" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-exchange-alt text-warning ms-2"></i> <span data-i18n="nav_sbar">تسليم الحالات (QR/SBAR)</span></h3><div class="card p-4 border-warning border-start border-4" id="sbar-container"><form id="sbar-form" class="row g-3"><div class="col-md-6"><label class="fw-bold" data-i18n="sbar_patient">اسم المريض / السرير</label><div class="input-group"><input type="text" id="sbar-name" class="form-control"><span class="input-group-text mic-btn" onclick="startDictation('sbar-name')"><i class="fas fa-microphone"></i></span></div></div><div class="col-md-6"><label class="fw-bold text-primary">S - الموقف</label><div class="input-group"><input type="text" id="sbar-s" class="form-control"><span class="input-group-text mic-btn" onclick="startDictation('sbar-s')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-info">B - الخلفية</label><div class="input-group"><textarea id="sbar-b" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-b')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-warning">A - التقييم</label><div class="input-group"><textarea id="sbar-a" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-a')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-success">R - التوصية</label><div class="input-group"><textarea id="sbar-r" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-r')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12 text-center mt-3 p-3 bg-light rounded" id="qr-area" style="display:none;"><div id="qrcode" class="d-flex justify-content-center"></div></div><div class="col-12 d-flex justify-content-center gap-2 mt-4 flex-wrap" id="sbar-btns"><button type="button" class="btn btn-success fw-bold px-3" onclick="generateSBAR()"><i class="fab fa-whatsapp me-1"></i> نسخ للواتس</button><button type="button" class="btn btn-warning fw-bold px-3 text-dark" onclick="generateQRCode()"><i class="fas fa-qrcode me-1"></i> QR Code</button><button type="button" class="btn btn-danger fw-bold px-3" onclick="exportSBARPDF()"><i class="fas fa-file-pdf me-1"></i> PDF</button></div></form></div></div>
+
+        <!-- 8. Cases -->
+        <div id="cases" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-file-medical-alt text-secondary ms-2"></i> <span data-i18n="nav_cases">سجل الحالات</span></h3><div class="card p-4 mb-4"><form id="case-form" class="row g-3"><div class="col-md-4"><input type="text" class="form-control" id="case-diagnosis" placeholder="التشخيص" required data-i18n-placeholder="case_diag_ph"></div><div class="col-md-4"><select class="form-select" id="case-dept" required><option value="" disabled selected data-i18n="dept_select">اختر التخصص...</option><option value="باطنة" data-i18n="dept_med">باطنة</option><option value="جراحة" data-i18n="dept_surg">جراحة</option><option value="أطفال" data-i18n="dept_peds">أطفال</option><option value="نساء وتوليد" data-i18n="dept_obgyn">نساء وتوليد</option><option value="طوارئ" data-i18n="dept_er">طوارئ</option></select></div><div class="col-md-4"><input type="text" class="form-control" id="case-demographics" placeholder="العمر/الجنس" data-i18n-placeholder="case_demo_ph"></div><div class="col-12"><textarea class="form-control" id="case-learning" rows="2" placeholder="نقاط التعلم..." required data-i18n-placeholder="case_learn_ph"></textarea></div><div class="col-12 text-end"><button type="submit" class="btn btn-dark fw-bold px-4" data-i18n="btn_add">إضافة</button></div></form></div><div id="cases-list" class="row"></div></div>
+
+        <!-- 9. Analytics -->
+        <div id="analytics" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-chart-pie text-success ms-2"></i> <span data-i18n="nav_analytics">إحصائيات الامتياز</span></h3><div class="row"><div class="col-md-6 mb-4"><div class="card p-4 h-100 shadow-sm"><h5 class="fw-bold mb-3 border-bottom pb-2">توزيع الحالات حسب التخصص</h5><div style="position: relative; height: 280px;"><canvas id="casesChart"></canvas></div></div></div><div class="col-md-6 mb-4"><div class="card p-4 h-100 shadow-sm"><h5 class="fw-bold mb-3 border-bottom pb-2">ملخص الإنجاز</h5><ul class="list-group list-group-flush"><li class="list-group-item d-flex justify-content-between">الحالات: <span class="badge bg-primary" id="stat-total-cases">0</span></li><li class="list-group-item d-flex justify-content-between">المذكرات: <span class="badge bg-success" id="stat-total-notes">0</span></li><li class="list-group-item d-flex justify-content-between">المهام: <span class="badge bg-info text-dark" id="stat-total-tasks">0</span></li></ul><button class="btn btn-outline-success fw-bold w-100 mt-3" onclick="generateShiftReport()"><i class="fas fa-file-pdf me-2"></i> تصدير التقرير PDF</button></div></div></div></div>
+
+        <!-- 10. Complete Question Bank -->
+        <div id="flashcards" class="content-section">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><h3 class="fw-bold mb-1"><i class="fas fa-graduation-cap text-info ms-2"></i>بنك الأسئلة الطبية</h3><p class="text-muted mb-0">اختبارات MCQ، بطاقات مراجعة، تتبّع التقدم وإدارة الأسئلة</p></div><div class="d-flex flex-wrap gap-2"><button class="btn btn-primary" onclick="openQuestionEditor()"><i class="fas fa-plus ms-1"></i>إضافة سؤال</button><button class="btn btn-outline-secondary" onclick="exportQuestionBank()">تصدير البنك</button><label class="btn btn-outline-secondary mb-0">استيراد JSON<input type="file" accept=".json,application/json" hidden onchange="importQuestionBank(event)"></label><button class="btn btn-outline-info" onclick="openSourceImport()"><i class="fas fa-file-import ms-1"></i>استخراج من ملف</button></div></div>
+          <div class="alert alert-warning py-2 small">للتعليم والمراجعة فقط؛ تحقّق من المراجع والإرشادات الحديثة قبل تطبيق أي معلومة على مريض.</div>
+          <div class="row g-3 mb-3"><div class="col-6 col-lg-3"><div class="card p-3"><div class="small text-muted">إجمالي الأسئلة</div><div class="fs-3 fw-bold" id="qb-total">0</div></div></div><div class="col-6 col-lg-3"><div class="card p-3"><div class="small text-muted">المحاولات</div><div class="fs-3 fw-bold text-primary" id="qb-attempted">0</div></div></div><div class="col-6 col-lg-3"><div class="card p-3"><div class="small text-muted">الدقة</div><div class="fs-3 fw-bold text-success" id="qb-accuracy">—</div></div></div><div class="col-6 col-lg-3"><div class="card p-3"><div class="small text-muted">للمراجعة</div><div class="fs-3 fw-bold text-warning" id="qb-review-count">0</div></div></div></div>
+          <div class="card p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-12 col-md-4"><label class="form-label" for="qb-search">بحث</label><input class="form-control" id="qb-search" placeholder="السؤال، الإجابة، الشرح أو الوسوم" oninput="renderQuestionBank()"></div><div class="col-6 col-md-3"><label class="form-label" for="qb-category">التخصص</label><select class="form-select" id="qb-category" onchange="renderQuestionBank()"><option value="">كل التخصصات</option></select></div><div class="col-6 col-md-3"><label class="form-label" for="qb-filter">تصفية</label><select class="form-select" id="qb-filter" onchange="renderQuestionBank()"><option value="all">كل الأسئلة</option><option value="bookmarked">المحفوظة</option><option value="review">أخطأت بها / للمراجعة</option><option value="unattempted">غير المجابة</option></select></div><div class="col-12 col-md-2"><label class="form-label" for="qb-mode">الوضع</label><select class="form-select" id="qb-mode" onchange="setQuestionMode()"><option value="mcq">اختبار MCQ</option><option value="flashcard">بطاقات</option><option value="browse">استعراض</option><option value="exam">امتحان مؤقت</option></select></div></div><div class="row g-2 mt-1"><div class="col-6 col-md-3"><label class="form-label small" for="qb-exam-count">عدد أسئلة الامتحان</label><select id="qb-exam-count" class="form-select form-select-sm"><option>10</option><option>20</option><option>30</option><option>50</option><option value="all">كل الأسئلة</option></select></div><div class="col-6 col-md-3"><label class="form-label small" for="qb-exam-minutes">الوقت (دقيقة)</label><select id="qb-exam-minutes" class="form-select form-select-sm"><option value="10">10</option><option value="20" selected>20</option><option value="30">30</option><option value="45">45</option><option value="60">60</option></select></div></div><div class="d-flex flex-wrap gap-2 mt-3"><button class="btn btn-primary" onclick="startQuestionSession(false)"><i class="fas fa-play ms-1"></i>ابدأ جلسة</button><button class="btn btn-outline-primary" onclick="startQuestionSession(true)"><i class="fas fa-shuffle ms-1"></i>عشوائي</button><button class="btn btn-outline-warning" onclick="resetQuestionSession()">إعادة الجلسة</button><span class="small text-muted align-self-center" id="qb-session-status" aria-live="polite">اختر التخصص وابدأ المراجعة</span></div></div>
+          <div id="qb-session" class="card p-3 p-md-4"><div id="qb-empty" class="text-center py-5 text-muted"><i class="fas fa-book-open fa-3x mb-3"></i><h5>ابدأ جلسة مراجعة</h5><p>يمكنك إضافة أسئلتك أو استيراد بنك أسئلة بصيغة JSON.</p></div><div id="qb-question-view" style="display:none"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><span class="badge bg-primary" id="qb-question-category"></span><span class="small text-muted" id="qb-question-counter"></span><button class="btn btn-sm btn-outline-warning" id="qb-bookmark-btn" onclick="toggleQuestionBookmark()">☆ حفظ للمراجعة</button></div><h5 id="qb-question-text" class="fw-bold lh-lg mb-4"></h5><div id="qb-options" class="d-grid gap-2 mb-3"></div><div id="qb-answer-panel" class="rounded border p-3 mb-3" style="display:none" aria-live="polite"></div><div class="d-flex flex-wrap gap-2"><button class="btn btn-success" id="qb-reveal-btn" onclick="revealQuestionAnswer()">إظهار الإجابة والشرح</button><button class="btn btn-outline-secondary" onclick="skipQuestion()">تخطي</button><button class="btn btn-primary me-auto" onclick="nextQuestion()">التالي ←</button></div></div></div>
+          <div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold mb-0">قائمة الأسئلة</h5><span class="small text-muted" id="qb-list-count"></span></div><div id="qb-question-list" class="d-grid gap-2"></div></div>
+          <div class="modal fade" id="qb-editor-modal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="qb-editor-title">إضافة سؤال</h5><button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button></div><div class="modal-body"><input type="hidden" id="qb-edit-id"><div class="mb-3"><label class="form-label" for="qb-edit-question">نص السؤال *</label><textarea id="qb-edit-question" class="form-control" rows="3"></textarea></div><div class="row g-2"><div class="col-md-6"><label class="form-label" for="qb-edit-category">التخصص *</label><input id="qb-edit-category" class="form-control" placeholder="مثال: Cardiology"></div><div class="col-md-6"><label class="form-label" for="qb-edit-difficulty">الصعوبة</label><select id="qb-edit-difficulty" class="form-select"><option>سهل</option><option selected>متوسط</option><option>صعب</option></select></div></div><div class="mt-3"><label class="form-label">الاختيارات (اختياري للبطاقات)</label><div class="row g-2" id="qb-edit-options"></div><div class="form-text">اكتب اختيارين إلى ستة، وحدد رقم الإجابة الصحيحة أدناه. اتركها كلها فارغة لإنشاء بطاقة.</div></div><div class="mt-3"><label class="form-label" for="qb-edit-correct">رقم الإجابة الصحيحة</label><input id="qb-edit-correct" type="number" min="1" max="6" class="form-control"></div><div class="mt-3"><label class="form-label" for="qb-edit-answer">الإجابة والشرح *</label><textarea id="qb-edit-answer" class="form-control" rows="4"></textarea></div><div class="mt-3"><label class="form-label" for="qb-edit-tags">وسوم، مفصولة بفواصل</label><input id="qb-edit-tags" class="form-control" placeholder="ECG, emergency"></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button class="btn btn-primary" onclick="saveQuestionFromEditor()">حفظ السؤال</button></div></div></div></div>
+          <div class="modal fade" id="qb-source-modal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">استخراج مسودات أسئلة من ملف دراسي</h5><button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button></div><div class="modal-body"><div class="alert alert-info small">تتم معالجة الملف محليًا داخل المتصفح باستخدام مكتبات الاستخراج. الأسئلة الناتجة مسودات مبنية على نص المصدر وليست أسئلة مولدة بذكاء اصطناعي؛ راجع الدقة والاختيارات قبل إضافتها. ملفات PDF المصورة قد تحتاج OCR غير متوفر هنا.</div><div class="row g-2"><div class="col-md-8"><label class="form-label" for="qb-source-file">PDF / DOCX / TXT / CSV / XLSX</label><input type="file" id="qb-source-file" class="form-control" accept=".pdf,.docx,.txt,.csv,.xlsx,.xls" /></div><div class="col-md-4"><label class="form-label" for="qb-source-category">التخصص</label><input id="qb-source-category" class="form-control" placeholder="مثال: Internal Medicine"></div></div><div class="d-flex gap-2 flex-wrap mt-3"><button class="btn btn-primary" onclick="extractSourceDrafts()"><i class="fas fa-wand-magic-sparkles ms-1"></i>استخراج مسودات</button><button class="btn btn-outline-secondary" onclick="clearSourceDrafts()">مسح</button><span id="qb-source-status" class="small text-muted align-self-center" aria-live="polite"></span></div><div id="qb-source-preview" class="mt-3"></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button></div></div></div></div>
+        </div>
+        <!-- 11. Interactions -->
+        <div id="interactions" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-ban text-danger ms-2"></i> <span data-i18n="nav_interactions">التداخلات الدوائية</span></h3><div class="card p-4 border-danger border-start border-4"><div class="row g-3"><div class="col-md-6"><div class="p-3 bg-light rounded border"><h6 class="fw-bold text-danger">🚫 Calcium + Ceftriaxone</h6><p class="small text-muted mb-0">يُمنع خلطهما للأطفال (ترسبات قاتلة).</p></div></div><div class="col-md-6"><div class="p-3 bg-light rounded border"><h6 class="fw-bold text-danger">🚫 Phenytoin + Dextrose</h6><p class="small text-muted mb-0">يترسب في محاليل الجلوكوز (يُعطى في Saline).</p></div></div></div></div></div>
+
+        <!-- 12. Shock -->
+        <div id="shock" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-heart-pulse text-danger ms-2"></i> <span data-i18n="nav_shock">مؤشر الصدمة</span></h3><div class="card p-4 border-danger border-start border-4"><div class="mb-3"><label class="small fw-bold">HR</label><input type="number" id="shock-hr" class="form-control" oninput="calcShock()"></div><div class="mb-3"><label class="small fw-bold">SBP</label><input type="number" id="shock-sbp" class="form-control" oninput="calcShock()"></div><div class="p-3 bg-light rounded text-center"><h5>Shock Index: <span id="si-res" class="text-danger">--</span></h5><small id="si-class"></small></div></div></div>
+
+        <!-- 13. SOAP -->
+        <div id="soap" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-file-signature text-primary ms-2"></i> <span data-i18n="nav_soap">SOAP Notes</span></h3><div class="card p-4 border-primary border-start border-4" id="soap-container"><input type="text" id="soap-patient" class="form-control mb-2" placeholder="المريض"><textarea id="soap-s" class="form-control mb-2" rows="2" placeholder="Subjective"></textarea><textarea id="soap-o" class="form-control mb-2" rows="2" placeholder="Objective"></textarea><textarea id="soap-a" class="form-control mb-2" rows="2" placeholder="Assessment"></textarea><textarea id="soap-p" class="form-control mb-2" rows="2" placeholder="Plan"></textarea><div class="text-center mt-3" id="soap-btns"><button class="btn btn-primary me-2" onclick="generateSOAPText()">نسخ</button><button class="btn btn-danger" onclick="exportSOAPPDF()">PDF</button></div></div></div>
+
+        <!-- 14. Peds Fluids -->
+        <div id="pedsfluids" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-baby text-info ms-2"></i> <span data-i18n="nav_pedsfluids">سوائل الأطفال</span></h3><div class="card p-4 border-info border-start border-4"><input type="number" id="peds-w" class="form-control mb-2" placeholder="الوزن" oninput="calcPedsFluids()"><div class="p-3 bg-light rounded text-center">سوائل اليوم: <h5 class="fw-bold text-info mb-0"><span id="peds-fluid-res">--</span> ml</h5></div></div></div>
+
+        <!-- 15. ABX & Renal -->
+        <div id="abx" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-capsules text-success ms-2"></i> <span data-i18n="nav_abx">المضادات وجرعات الكلى</span></h3><div class="row"><div class="col-md-6 mb-3"><div class="card p-4"><select id="abx-select" class="form-select mb-2" onchange="showAbxGuide()"><option value="" disabled selected>الحالة</option><option value="cap">CAP</option><option value="uti">UTI</option></select><div class="p-2 bg-light rounded small" id="abx-desc"></div></div></div><div class="col-md-6 mb-3"><div class="card p-4"><input type="number" id="cr-age" class="form-control mb-2" placeholder="العمر" oninput="calcCrCl()"><input type="number" id="cr-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcCrCl()"><input type="number" step="0.1" id="cr-scr" class="form-control mb-2" placeholder="Scr" oninput="calcCrCl()"><h5 class="text-primary">CrCl: <span id="cr-res">--</span></h5></div></div></div></div>
+
+        <!-- 16. Electrolytes -->
+        <div id="electrolytes" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-vial text-info ms-2"></i> <span data-i18n="nav_electrolytes">تصحيح الأملاح</span></h3><div class="card p-4"><input type="number" id="Na-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcNa()"><input type="number" id="Na-cur" class="form-control mb-2" placeholder="الحالي" oninput="calcNa()"><input type="number" id="Na-tar" class="form-control mb-2" placeholder="المستهدف" oninput="calcNa()"><h5 class="text-info">NaCl 3%: <span id="Na-res">--</span> ml</h5></div></div>
+
+        <!-- 17. Procedures -->
+        <div id="procedures" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-hands-helping text-primary ms-2"></i> <span data-i18n="nav_procedures">خطوات الإجراءات</span></h3><div class="card p-4">CVC, NG tube, Foley catheter guidelines.</div></div>
+        <!-- 18. CPR -->
+        <div id="cpr" class="content-section"><h3 class="mb-4 fw-bold text-danger"><i class="fas fa-heartbeat text-danger ms-2"></i> <span data-i18n="nav_cpr">إنعاش القلب (CPR)</span></h3><div class="card p-4 text-center cpr-card"><div class="cpr-timer" id="cpr-display">02:00</div><button id="cpr-start-btn" class="btn btn-danger" onclick="startCPR()">بدء</button></div></div>
+        <!-- 19. Drugs -->
+        <div id="drugs" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-pills text-primary ms-2"></i> <span data-i18n="nav_drugs">جرعات الأطفال الطارئة</span></h3><div class="card p-4"><input type="number" id="ped-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcPeds()"><select id="ped-drug" class="form-select mb-2" onchange="calcPeds()"><option value="para250">Paracetamol</option></select><h5 id="ped-result" class="text-primary">--</h5></div></div>
+        <!-- 20. Calculators -->
+        <div id="calculators" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-calculator text-info ms-2"></i> <span data-i18n="nav_calculators">الحاسبات و ABG</span></h3><div class="card p-4"><div class="row g-2 mb-2"><div class="col-4"><input type="number" step="0.01" id="abg-ph" class="form-control" placeholder="pH" oninput="calcABG()"></div><div class="col-4"><input type="number" id="abg-pco2" class="form-control" placeholder="pCO2" oninput="calcABG()"></div><div class="col-4"><input type="number" id="abg-hco3" class="form-control" placeholder="HCO3" oninput="calcABG()"></div></div><h5 id="abg-result" class="text-danger">--</h5></div></div>
+        <!-- 21. Scores -->
+        <div id="scores" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-clipboard-list text-warning ms-2"></i> <span data-i18n="nav_scores">التقييمات السريرية</span></h3><div class="card p-4"><div class="score-item"><label>Confusion</label><input class="form-check-input" type="checkbox" id="curb-c" onchange="calcCURB()"></div><h5 id="curb-res" class="text-danger">0</h5></div></div>
+        <!-- 22. ECG -->
+        <div id="ecg" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-wave-square text-danger ms-2"></i> <span data-i18n="nav_ecg">دليل رسم القلب</span></h3><div class="card p-4">STEMI, AFib, SVT.</div></div>
+
+        <!-- 23. AI -->
+        <div id="ai" class="content-section flex-active"><h3 class="mb-4 fw-bold" style="color:var(--purple);"><i class="fas fa-robot ms-2"></i> <span data-i18n="nav_ai">المساعد الذكي (AI)</span></h3><div class="card p-3 shadow-sm mb-3" id="api-key-setup"><input type="password" id="gemini-api-key" class="form-control mb-2" placeholder="API Key"><button class="btn btn-success" onclick="saveApiKey()">حفظ</button></div><div class="card p-0 shadow-sm border-0 d-flex flex-column chat-container" id="chat-interface" style="display:none!important; height:65vh;"><div class="card-header text-white p-2" style="background:var(--purple);"><button class="btn btn-sm btn-light float-end p-1 px-2" onclick="resetApiKey()"><i class="fas fa-cog"></i></button></div><div class="card-body chat-box" id="chat-box"></div><div class="card-footer bg-transparent p-2 border-top-0"><form id="chat-form" class="d-flex"><input type="text" id="chat-input" class="form-control me-2 rounded-pill" required><button type="submit" class="btn text-white rounded-circle" style="background:var(--purple); width:45px; height:45px;"><i class="fas fa-paper-plane"></i></button></form></div></div></div>
+
+        <!-- 24. Settings -->
+        <div id="settings" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-cog text-secondary ms-2"></i> <span data-i18n="nav_settings">الإعدادات والجداول</span></h3><div class="row"><div class="col-md-6 mb-3"><div class="card p-4 border-info border-start border-4 h-100" id="shifts"><h5 class="fw-bold mb-3">النبطشيات</h5><div class="d-flex gap-2 mb-3"><input type="date" id="shift-date" class="form-control"><select id="shift-type" class="form-select"><option value="morning">صباحي</option><option value="night">سهر</option><option value="off">إجازة</option></select><button class="btn btn-info fw-bold" onclick="addShift()">حفظ</button></div><div class="calendar" id="calendar-grid"></div></div></div><div class="col-md-6 mb-3"><div class="card p-4 border-primary border-start border-4 mb-3"><button class="btn btn-primary fw-bold w-100 mb-2" onclick="exportData()"><i class="fas fa-download"></i> تصدير</button><input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)"><button class="btn btn-outline-success fw-bold w-100" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> استرجاع</button></div><div class="card p-4 border-danger border-start border-4"><button class="btn btn-danger fw-bold w-100" onclick="clearAllData()"><i class="fas fa-trash-alt"></i> مسح كامل</button></div></div></div></div>
+        
+        <!-- Hidden Report -->
+        <div id="shift-report" class="shift-report-container" dir="rtl"><h2 style="text-align:center; color:#0d6efd;">تقرير النبطشية (V26)</h2><p><strong>التاريخ:</strong> <span id="rep-date"></span></p><h4>المهام:</h4><ul id="rep-tasks"></ul><h4>الحالات:</h4><div id="rep-cases"></div><h4>المذكرات:</h4><div id="rep-notes"></div></div>
+    </div>
+
+    <!-- Upload/Edit Book Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" dir="rtl"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: var(--bg-card); color: var(--text-main);"><div class="modal-header"><h5 class="modal-title fw-bold">بيانات المرجع</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="upload-book-form"><div class="mb-3"><label class="form-label fw-bold">اسم المرجع</label><input type="text" class="form-control" id="modal-book-title" required></div><div class="mb-3"><label class="form-label fw-bold">التصنيف</label><select class="form-select" id="modal-book-category"><option value="كتب طبية (Textbooks)">كتب طبية (Textbooks)</option><option value="إرشادات (Guidelines)">إرشادات طبية (Guidelines)</option><option value="خوارزميات (Algorithms)">خوارزميات (Algorithms)</option><option value="ملازم ومذكرات (Notes)">ملازم ومذكرات</option></select></div><div class="mb-3"><label class="form-label fw-bold">التاجات (Tags) - مفصولة بفاصلة</label><input type="text" class="form-control" id="modal-book-tags" placeholder="مثال: طوارئ, باطنة, أطفال"></div><div class="mb-3"><label class="form-label fw-bold" for="modal-book-notes">ملاحظات / وصف (اختياري)</label><textarea id="modal-book-notes" class="form-control" rows="2" placeholder="الفصل، السنة، ملاحظاتك..."></textarea></div><div class="small text-muted mb-2">يمكن رفع عدة ملفات PDF معًا. الملفات الكبيرة تعتمد على سعة تخزين المتصفح.</div><button type="submit" class="btn btn-danger w-100 fw-bold">حفظ بالمكتبة الدائمة</button></form></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        try {
+            // --- MULTI-LANGUAGE DICTIONARIES (Arabic, English, Hebrew) ---
+            const translations = {
+                ar: {
+                    app_title: "Intern Hub",
+                    app_subtitle: "بوابة نبطشيات طبيب الامتياز الاحترافية",
+                    login_tab: "تسجيل الدخول",
+                    register_tab: "حساب جديد",
+                    email_label: "البريد الإلكتروني أو اسم المستخدم",
+                    pass_label: "كلمة المرور",
+                    name_label: "اسم الطبيب الكامل",
+                    login_btn: "تسجيل الدخول",
+                    register_btn: "إنشاء الحساب",
+                    guest_btn: "متابعة كضيف (صلاحيات محدودة)",
+                    guest_note: "تنبيه: هذه نسخة محلية تجريبية؛ تسجيل الدخول لا يتحقق من الهوية ولا توجد مزامنة سحابية.",
+                    dark_mode: "وضع الرؤية الليلية",
+                    grp_main: "الرئيسية والمهام",
+                    nav_dashboard: "الرئيسية",
+                    nav_tasks: "المهام والمنبهات",
+                    nav_notes: "المذكرات الصوتية",
+                    nav_sbar: "تسليم الحالات (QR/SBAR)",
+                    nav_cases: "سجل الحالات",
+                    grp_emergency: "أدوات العناية والطوارئ",
+                    nav_dripcalc: "حاسبة الجرعات الوريدية (Drip)",
+                    nav_labguide: "دليل التحاليل الشاذة (Labs)",
+                    nav_simulator: "محاكي الطوارئ (حسب البرانش) ⭐️",
+                    grp_library: "المكتبة الذكية والتدريب",
+                    nav_library: "المكتبة الطبية الاحترافية ⭐️",
+                    nav_analytics: "إحصائيات الامتياز",
+                    grp_tools: "الأدوات الطبية الأساسية",
+                    nav_flashcards: "بنك الأسئلة (Flashcards)",
+                    nav_interactions: "التداخلات الدوائية",
+                    nav_shock: "مؤشر الصدمة (Shock Index)",
+                    nav_soap: "قوالب SOAP الطبية",
+                    nav_pedsfluids: "سوائل الأطفال (Holliday)",
+                    nav_abx: "المضادات وجرعات الكلى",
+                    nav_electrolytes: "تصحيح الأملاح",
+                    nav_procedures: "خطوات الإجراءات",
+                    nav_cpr: "إنعاش القلب (CPR)",
+                    nav_drugs: "جرعات الأطفال الطارئة",
+                    nav_calculators: "الحاسبات و ABG",
+                    nav_scores: "التقييمات السريرية",
+                    nav_ecg: "دليل رسم القلب",
+                    grp_system: "النظام والذكاء الاصطناعي",
+                    nav_ai: "المساعد الذكي (AI)",
+                    nav_settings: "الإعدادات والجداول",
+                    nav_logout: "تسجيل الخروج",
+                    mob_home: "الرئيسية",
+                    mob_sim: "المحاكي",
+                    mob_lib: "المكتبة",
+                    mob_tasks: "المهام",
+                    mob_more: "المزيد",
+                    mob_menu_title: "القائمة الكاملة (V26 Supreme)",
+                    welcome_msg: "مرحباً يا دكتور",
+                    stat_tasks: "مهام اليوم",
+                    stat_notes: "مذكراتك",
+                    stat_sim: "محاكي الطوارئ بالبرانشات",
+                    start_train: "ابدأ التدريب",
+                    dash_title: "تحديث زر اللغات العلوي (V26 Supreme)",
+                    dash_desc: "تم نقل وتسهيل تبديل اللغات (العربية، الإنجليزية، العبرية) ليصبح في أعلى الشاشة لسهولة الوصول إليه فوراً.",
+                    sim_header: "محاكي الطوارئ (مقسّم حسب البرانشات)",
+                    sim_badge: "بنك الحالات السريرية ⭐️",
+                    sim_select_branch: "اختر التخصص أو البرانش الطبي للتدريب:",
+                    sim_select_desc: "اختر التخصص لاختبار تعاملك مع الحالات الحرجة الخاصة به في الاستقبال.",
+                    branch_med: "الباطنة العامة",
+                    branch_med_title: "حالات الباطنة الطارئة",
+                    branch_er: "الطوارئ والعناية",
+                    branch_er_title: "حالات العناية والصدمات",
+                    branch_cardio: "القلبية والحرجة",
+                    branch_cardio_title: "حالات القلب الطارئة",
+                    branch_peds: "طب الأطفال",
+                    branch_peds_title: "طوارئ الأطفال",
+                    branch_surg: "الجراحة العامة",
+                    branch_surg_title: "الطوارئ الجراحية",
+                    branch_obgyn: "نساء وتوليد",
+                    branch_obgyn_title: "طوارئ النسا والتوليد",
+                    sim_exit: "إنهاء وخروج",
+                    sim_next: "المرحلة التالية",
+                    drip_header: "حاسبة الحقن الآلي المستمر (Inotropic Drip Calculator)",
+                    drip_settings: "⚙️ إعدادات الحقن الآلي (Syringe Pump)",
+                    drip_drug_lbl: "اختر الدواء:",
+                    drip_wt_lbl: "وزن المريض (kg):",
+                    drip_dose_lbl: "الجرعة المطلوبة (mcg/kg/min):",
+                    drip_rate_lbl: "السرعة المطلوبة على جهاز الحقن:",
+                    drip_prep_title: "💡 طريقة التحضير القياسية (Standard Prep):",
+                    drip_prep_note: "تأكد دائماً من مراجعة التركيز المسجل على السرنجة قبل الضبط على الجهاز.",
+                    lab_header: "دليل التحاليل الشاذة السريع (Lab Abnormalities Guide)",
+                    lab_desc: "اختر التحليل لمعرفة الأسباب الفورية والإجراء العلاجي السريع بالاستقبال:",
+                    lab_select_default: "-- اختر التحليل أو النتيجة --",
+                    lab_box_default: "اختر تحليلاً من القائمة بالأعلى لعرض التفاصيل الإكلينيكية الفورية.",
+                    lib_header: "المكتبة الطبية الاحترافية",
+                    lib_upload: "رفع مرجع PDF",
+                    lib_search_placeholder: "ابحث باسم المرجع أو التاج...",
+                    cat_all: "الكل",
+                    cat_fav: "المفضلة ⭐️",
+                    cat_textbooks: "كتب طبية",
+                    cat_guidelines: "إرشادات Guidelines",
+                    cat_algorithms: "خوارزميات",
+                    cat_notes: "ملازم شخصية",
+                    lib_empty_title: "المكتبة فارغة",
+                    lib_empty_desc: "قم برفع مراجعك الطبية (PDF). سيتم تنظيمها وحفظها بشكل دائم على جهازك بدون إنترنت.",
+                    task_placeholder: "أضف مهمة...",
+                    t_no_alarm: "بدون منبه",
+                    t_15: "تنبيه بعد 15 دقيقة",
+                    t_30: "تنبيه بعد نصف ساعة",
+                    t_60: "تنبيه بعد 1 ساعة",
+                    btn_add: "إضافة",
+                    dept_select: "القسم...",
+                    dept_med: "باطنة",
+                    dept_surg: "جراحة",
+                    dept_peds: "أطفال",
+                    dept_obgyn: "نساء وتوليد",
+                    dept_er: "طوارئ",
+                    note_title_ph: "العنوان",
+                    note_desc_ph: "التفاصيل...",
+                    btn_save: "حفظ",
+                    sbar_patient: "اسم المريض / السرير",
+                    case_diag_ph: "التشخيص",
+                    case_demo_ph: "العمر/الجنس",
+                    case_learn_ph: "نقاط التعلم..."
+                },
+                en: {
+                    app_title: "Intern Hub",
+                    app_subtitle: "Professional Medical Internship Portal",
+                    login_tab: "Login",
+                    register_tab: "Register",
+                    email_label: "Email or Username",
+                    pass_label: "Password",
+                    name_label: "Full Doctor Name",
+                    login_btn: "Login",
+                    register_btn: "Create Account",
+                    guest_btn: "Continue as Guest (Limited Access)",
+                    guest_note: "Demo only: login is local and does not verify identity; cloud sync is not configured.",
+                    dark_mode: "Dark Mode",
+                    grp_main: "Dashboard & Tasks",
+                    nav_dashboard: "Dashboard",
+                    nav_tasks: "Tasks & Alarms",
+                    nav_notes: "Voice Notes",
+                    nav_sbar: "Handover (QR/SBAR)",
+                    nav_cases: "Cases Log",
+                    grp_emergency: "Critical Care & ER",
+                    nav_dripcalc: "Inotropic Drip Calculator",
+                    nav_labguide: "Lab Abnormalities Guide",
+                    nav_simulator: "ER Simulator (By Branch) ⭐️",
+                    grp_library: "Smart Library & Training",
+                    nav_library: "Pro Medical Library ⭐️",
+                    nav_analytics: "Internship Analytics",
+                    grp_tools: "Essential Medical Tools",
+                    nav_flashcards: "Flashcards Bank",
+                    nav_interactions: "Drug Interactions",
+                    nav_shock: "Shock Index",
+                    nav_soap: "SOAP Templates",
+                    nav_pedsfluids: "Peds Fluids (Holliday)",
+                    nav_abx: "Antibiotics & Renal Dose",
+                    nav_electrolytes: "Electrolyte Correction",
+                    nav_procedures: "Procedures Guide",
+                    nav_cpr: "CPR Resuscitation",
+                    nav_drugs: "Peds Emergency Drugs",
+                    nav_calculators: "Calculators & ABG",
+                    nav_scores: "Clinical Scores",
+                    nav_ecg: "ECG Guide",
+                    grp_system: "System & AI",
+                    nav_ai: "AI Assistant",
+                    nav_settings: "Settings & Shifts",
+                    nav_logout: "Logout",
+                    mob_home: "Home",
+                    mob_sim: "Simulator",
+                    mob_lib: "Library",
+                    mob_tasks: "Tasks",
+                    mob_more: "More",
+                    mob_menu_title: "Full Menu (V26 Supreme)",
+                    welcome_msg: "Welcome Dr.",
+                    stat_tasks: "Today Tasks",
+                    stat_notes: "Your Notes",
+                    stat_sim: "ER Branch Simulator",
+                    start_train: "Start Training",
+                    dash_title: "Top Language Switcher Update (V26 Supreme)",
+                    dash_desc: "The language switcher (Arabic, English, Hebrew) has been moved to the top bar for instant access.",
+                    sim_header: "Emergency Simulator (By Branch)",
+                    sim_badge: "Clinical Cases Bank ⭐️",
+                    sim_select_branch: "Choose Specialty or Medical Branch:",
+                    sim_select_desc: "Choose a specialty to test your emergency handling skills.",
+                    branch_med: "Internal Medicine",
+                    branch_med_title: "Emergency Medical Cases",
+                    branch_er: "ER & Critical Care",
+                    branch_er_title: "Trauma & Shock Cases",
+                    branch_cardio: "Cardiology",
+                    branch_cardio_title: "Cardiac Emergencies",
+                    branch_peds: "Pediatrics",
+                    branch_peds_title: "Pediatric Emergencies",
+                    branch_surg: "General Surgery",
+                    branch_surg_title: "Surgical Emergencies",
+                    branch_obgyn: "OB / GYN",
+                    branch_obgyn_title: "Obstetric Emergencies",
+                    sim_exit: "Exit / End",
+                    sim_next: "Next Stage",
+                    drip_header: "Inotropic Drip Calculator",
+                    drip_settings: "⚙️ Syringe Pump Settings",
+                    drip_drug_lbl: "Select Drug:",
+                    drip_wt_lbl: "Patient Weight (kg):",
+                    drip_dose_lbl: "Required Dose (mcg/kg/min):",
+                    drip_rate_lbl: "Required Infusion Rate:",
+                    drip_prep_title: "💡 Standard Preparation:",
+                    drip_prep_note: "Always verify the actual concentration on the syringe before starting.",
+                    lab_header: "Lab Abnormalities Quick Guide",
+                    lab_desc: "Select a lab result to view immediate clinical action:",
+                    lab_select_default: "-- Select Lab Result --",
+                    lab_box_default: "Select a lab result from above to view immediate clinical guidance.",
+                    lib_header: "Pro Medical Library",
+                    lib_upload: "Upload PDF",
+                    lib_search_placeholder: "Search reference or tag...",
+                    cat_all: "All",
+                    cat_fav: "Favorites ⭐️",
+                    cat_textbooks: "Textbooks",
+                    cat_guidelines: "Guidelines",
+                    cat_algorithms: "Algorithms",
+                    cat_notes: "Personal Notes",
+                    lib_empty_title: "Library is Empty",
+                    lib_empty_desc: "Upload medical references (PDF). They will be securely saved offline.",
+                    task_placeholder: "Add task...",
+                    t_no_alarm: "No Alarm",
+                    t_15: "Alert after 15 min",
+                    t_30: "Alert after 30 min",
+                    t_60: "Alert after 1 hour",
+                    btn_add: "Add",
+                    dept_select: "Department...",
+                    dept_med: "Medicine",
+                    dept_surg: "Surgery",
+                    dept_peds: "Pediatrics",
+                    dept_obgyn: "OB/GYN",
+                    dept_er: "Emergency",
+                    note_title_ph: "Title",
+                    note_desc_ph: "Details...",
+                    btn_save: "Save",
+                    sbar_patient: "Patient / Bed",
+                    case_diag_ph: "Diagnosis",
+                    case_demo_ph: "Age / Gender",
+                    case_learn_ph: "Learning points..."
+                },
+                he: {
+                    app_title: "Intern Hub",
+                    app_subtitle: "פורטל התوصات הרפואי המקצועי",
+                    login_tab: "התחברות",
+                    register_tab: "משתמש חדש",
+                    email_label: "דוא״ל או שם משתמש",
+                    pass_label: "סיסמה",
+                    name_label: "שם הרופא המלא",
+                    login_btn: "התחבר",
+                    register_btn: "צור חשבון",
+                    guest_btn: "המשך כאורח (הרשאות מוגבלות)",
+                    guest_note: "הערה: אורחים לא יכולים לשמור נתונים בענן או להעלות קבצים לספרייה.",
+                    dark_mode: "מצב לילה",
+                    grp_main: "ראשי ומשימות",
+                    nav_dashboard: "לוח בקרה",
+                    nav_tasks: "משימות ותזכורות",
+                    nav_notes: "הערות קוליות",
+                    nav_sbar: "מסירת משמרת (QR/SBAR)",
+                    nav_cases: "יומן מקרים",
+                    grp_emergency: "טיפול נמרץ וחירום",
+                    nav_dripcalc: "מחשבון עיشוי רציף (Drip)",
+                    nav_labguide: "מדריך מעבדה מהיר",
+                    nav_simulator: "סימולטור חירום (לפי מחלקה) ⭐️",
+                    grp_library: "ספרייה חכמה והדרכה",
+                    nav_library: "ספרייה רפואית מקצועית ⭐️",
+                    nav_analytics: "סטטיסטיקות התמחות",
+                    grp_tools: "כלים רפואיים חיוניים",
+                    nav_flashcards: "שאלות תרגול (Flashcards)",
+                    nav_interactions: "אינטראקציות בין תרופות",
+                    nav_shock: "מדד הלם (Shock Index)",
+                    nav_soap: "תבניות SOAP",
+                    nav_pedsfluids: "נוזלי ילדים (Holliday)",
+                    nav_abx: "אנטיביוטיקה ותפקודי כליה",
+                    nav_electrolytes: "תיקון אלקטרוליטים",
+                    nav_procedures: "מדריך פרוצדורות",
+                    nav_cpr: "החייאה (CPR)",
+                    nav_drugs: "מינוני חירום לילדים",
+                    nav_calculators: "מחשבונים ו-ABG",
+                    nav_scores: "הערכות קליניות",
+                    nav_ecg: "מדריך אק״ג",
+                    grp_system: "מערכת ובינה מלאכותית",
+                    nav_ai: "עוזר חכם (AI)",
+                    nav_settings: "הגדרות ומשמרות",
+                    nav_logout: "התנתק",
+                    mob_home: "ראשי",
+                    mob_sim: "סימולטור",
+                    mob_lib: "ספרייה",
+                    mob_tasks: "משימות",
+                    mob_more: "עוד",
+                    mob_menu_title: "תפריט מלא (V26 Supreme)",
+                    welcome_msg: "שלום ד״ר",
+                    stat_tasks: "משימות להיום",
+                    stat_notes: "ההערות שלך",
+                    stat_sim: "סימולטור חירום מחלקתי",
+                    start_train: "התחל אימון",
+                    dash_title: "עדכון כפתור שפות עליון (V26 Supreme)",
+                    dash_desc: "בורר השפות (ערבית, אנגלית, עברית) הועבר לחלק העליון של המסך לגישה מיידית.",
+                    sim_header: "סימולטור חירום (מחולק לפי מחלקות)",
+                    sim_badge: "בנק מקרים קליניים ⭐️",
+                    sim_select_branch: "בחר התמחות או מחלקה רפואית לאימון:",
+                    sim_select_desc: "בחר מחלקה כדי לבחון את הטיפול שלך במקרי חירום.",
+                    branch_med: "רפואה פנימית",
+                    branch_med_title: "מקרי חירום פנימיים",
+                    branch_er: "חירום וטיפול נמרץ",
+                    branch_er_title: "טראומה והלם",
+                    branch_cardio: "קרדיולוגיה",
+                    branch_cardio_title: "מקרי חירום לבביים",
+                    branch_peds: "רפואת ילדים",
+                    branch_peds_title: "חירום ילדים",
+                    branch_surg: "כירורגיה כללית",
+                    branch_surg_title: "חירום כירורגי",
+                    branch_obgyn: "גינקולוגיה ומיילדות",
+                    branch_obgyn_title: "חירום נשים ומיילדות",
+                    sim_exit: "יציאה / סיום",
+                    sim_next: "שלב הבא",
+                    drip_header: "מחשבון עירוי רציף (Inotropic Drip)",
+                    drip_settings: "⚙️ הגדרות משאבת עירוי",
+                    drip_drug_lbl: "בחר תרופה:",
+                    drip_wt_lbl: "משקל מטופל (kg):",
+                    drip_dose_lbl: "מינון נדרש (mcg/kg/min):",
+                    drip_rate_lbl: "קצב נדרש במשאבה:",
+                    drip_prep_title: "💡 הכנה סטנדרטית:",
+                    drip_prep_note: "יש לוודא תמיד את הרישום על המזרק לפני הפעלת המשאבה.",
+                    lab_header: "מדריך מהיר לחריגות מעבדה",
+                    lab_desc: "בחר בדיקה כדי לראות פעולה קלינית מיידית:",
+                    lab_select_default: "-- בחר תוצאת מעבדה --",
+                    lab_box_default: "בחר בדיקה מהרשימה לעיל להצגת הנחיות קליניות מיידיות.",
+                    lib_header: "ספרייה רפואית מקצועית",
+                    lib_upload: "העלה קובץ PDF",
+                    lib_search_placeholder: "חפש לפי שם או תגית...",
+                    cat_all: "הכל",
+                    cat_fav: "מועדפים ⭐️",
+                    cat_textbooks: "ספרי לימוד",
+                    cat_guidelines: "הנחיות (Guidelines)",
+                    cat_algorithms: "אלגוריתמים",
+                    cat_notes: "הערות אישיות",
+                    lib_empty_title: "הספרייה ריקה",
+                    lib_empty_desc: "העלה ספרות רפואית (PDF). הקבצים יישמרו בצורה מאובטחת במכשיר שלך.",
+                    task_placeholder: "הוסף משימה...",
+                    t_no_alarm: "ללא התראה",
+                    t_15: "התראה בעוד 15 דקות",
+                    t_30: "התראה בעוד חצי שעה",
+                    t_60: "התראה בעוד שעה",
+                    btn_add: "הוסף",
+                    dept_select: "מחלקה...",
+                    dept_med: "פנימית",
+                    dept_surg: "כירורגיה",
+                    dept_peds: "ילדים",
+                    dept_obgyn: "נשים",
+                    dept_er: "חירום",
+                    note_title_ph: "כותרת",
+                    note_desc_ph: "פרטים...",
+                    btn_save: "שמור",
+                    sbar_patient: "שם המטופל / מיטה",
+                    case_diag_ph: "אבחנה",
+                    case_demo_ph: "גיל / מין",
+                    case_learn_ph: "נקודות לلמידה..."
+                }
+            };
+
+            window.switchLanguage = function(lang) {
+                localStorage.setItem('internHubLang', lang);
+                document.getElementById('top-lang-selector').value = lang;
+                const root = document.getElementById('html-root');
+                const bootstrapCss = document.getElementById('bootstrap-css');
+                
+                if(lang === 'he' || lang === 'ar') {
+                    root.setAttribute('dir', 'rtl');
+                    root.setAttribute('lang', lang);
+                    bootstrapCss.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css";
+                } else {
+                    root.setAttribute('dir', 'ltr');
+                    root.setAttribute('lang', lang);
+                    bootstrapCss.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css";
+                }
+
+                const dict = translations[lang] || translations.ar;
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if(dict[key]) el.innerText = dict[key];
+                });
+
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if(dict[key]) el.placeholder = dict[key];
+                });
+            }
+
+            // --- AUTHENTICATION SYSTEM LOGIC ---
+            function checkAuthStatus() {
+                const currentUser = localStorage.getItem('internHubCurrentUser');
+                const overlay = document.getElementById('auth-overlay');
+                if(currentUser) {
+                    overlay.style.display = 'none';
+                    try {
+                        const userObj = JSON.parse(currentUser);
+                        document.getElementById('user-display-name').innerText = userObj.name || userObj.email || "طبيب";
+                        if(userObj.isGuest) {
+                            document.getElementById('sidebar-user-badge').innerHTML = '<i class="fas fa-user-secret me-1"></i> وضع ضيف (محدد)';
+                        } else {
+                            document.getElementById('sidebar-user-badge').innerHTML = '<i class="fas fa-crown me-1"></i> طبيب مسجل';
+                        }
+                    } catch(e) {
+                        document.getElementById('user-display-name').innerText = "طبيب";
+                    }
+                } else {
+                    overlay.style.display = 'flex';
+                }
+            }
+
+            window.handleLogin = function(e) {
+                e.preventDefault();
+                const user = document.getElementById('login-user').value.trim();
+                const pass = document.getElementById('login-pass').value.trim();
+                if(user && pass) {
+                    const userData = { name: user.split('@')[0], email: user, isGuest: false };
+                    localStorage.setItem('internHubCurrentUser', JSON.stringify(userData));
+                    Swal.fire({ title: 'مرحباً بك', text: 'وضع تجريبي محلي فقط؛ كلمة المرور لا يتم التحقق منها ولا يوجد حساب سحابي.', icon: 'info', timer: 2600, showConfirmButton: false });
+                    checkAuthStatus();
+                }
+            }
+
+            window.handleRegister = function(e) {
+                e.preventDefault();
+                const name = document.getElementById('reg-name').value.trim();
+                const email = document.getElementById('reg-email').value.trim();
+                const pass = document.getElementById('reg-pass').value.trim();
+                if(name && email && pass) {
+                    const userData = { name: name, email: email, isGuest: false };
+                    localStorage.setItem('internHubCurrentUser', JSON.stringify(userData));
+                    Swal.fire({ title: 'تم إنشاء ملف محلي', text: 'هذا ليس حساباً آمناً ولا تتم مزامنة البيانات عبر الأجهزة.', icon: 'info', timer: 2600, showConfirmButton: false });
+                    checkAuthStatus();
+                }
+            }
+
+            window.handleGuestMode = function() {
+                const userData = { name: 'زائر (ضيف)', email: 'guest@internhub.local', isGuest: true };
+                localStorage.setItem('internHubCurrentUser', JSON.stringify(userData));
+                Swal.fire({ title: 'تم الدخول كضيف', text: 'بعض الميزات المتقدمة مثل رفع ملفات للمكتبة سيكون مقيداً.', icon: 'info', timer: 2000, showConfirmButton: false });
+                checkAuthStatus();
+            }
+
+            window.handleLogout = function() {
+                Swal.fire({
+                    title: 'تسجيل الخروج؟',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم',
+                    cancelButtonText: 'إلغاء'
+                }).then(res => {
+                    if(res.isConfirmed) {
+                        localStorage.removeItem('internHubCurrentUser');
+                        checkAuthStatus();
+                    }
+                });
+            }
+
+            window.checkPermissionAndUpload = function() {
+                const currentUser = localStorage.getItem('internHubCurrentUser');
+                if(currentUser) {
+                    try {
+                        const userObj = JSON.parse(currentUser);
+                        if(userObj.isGuest) {
+                            Swal.fire('صلاحيات محدودة', 'عذراً، حساب الضيف لا يتيح رفع مراجع جديدة للمكتبة. يرجى إنشاء حساب طبيب كامل.', 'warning');
+                            return;
+                        }
+                    } catch(e){}
+                }
+                document.getElementById('pdf-upload').click();
+            }
+
+            // --- V24 BRANCH-BASED EMERGENCY SIMULATOR DATABASE ---
+            const simScenarios = {
+                dka: {
+                    name: "باطنة: مريض سكري بحالة DKA حادة",
+                    stages: [
+                        {
+                            title: "المرحلة 1: التدبير الفوري في الاستقبال",
+                            desc: "مريض يعاني من قيء مستمر، تنفس عميق وسريع (Kussmaul)، ورائحة اسيتون. نبض 125، ضغط 90/60. ما الإجراء الأول؟",
+                            hr: 125, bp: "90/60", spo2: "98%",
+                            options: [
+                                { text: "إعطاء إنسولين سريع وريدياً فوراً", correct: false, feedback: "خطأ! إعطاء إنسولين بدون سوائل سيفاقم هبوط الضغط الحاد." },
+                                { text: "إعطاء محلول ملح 0.9% (Normal Saline) لتعويض الجفاف", correct: true, feedback: "ممتاز! إعادة تروية الجسم بالسوائل هي الخطوة الأولى." },
+                                { text: "إعطاء مدر بول (Furosemide)", correct: false, feedback: "خطأ تام! المريض يعاني من جفاف شديد." }
+                            ]
+                        }
+                    ]
+                },
+                gi_bleed: {
+                    name: "باطنة: نزيف الجهاز الهضمي العلوي (GI Bleeding)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: التعامل مع القيء الدموي (Hematemesis)",
+                            desc: "مريض يحضر لقيء دموي غزير وتغوط أسود (Melena). نبض 115، ضغط 85/55، شحوب شديد. ما هو أول إجراء طبي؟",
+                            hr: 115, bp: "85/55", spo2: "96%",
+                            options: [
+                                { text: "تركيب كانيولتين واسعتين (Large-bore IV lines) وبدء إعطاء السوائل والدم", correct: true, feedback: "صحيح! تأمين الوصول الوريدي السريع وإنعاش الدورة الدموية هو الأولوية." },
+                                { text: "انتظار نتائج تحاليل الدم الكاملة قبل أي إجراء", correct: false, feedback: "خطأ! في النزيف الحاد، الإنعاش بالسوائل يسبق انتظار النتائج." },
+                                { text: "إعطاء شراب مضاد للحموضة فقط", correct: false, feedback: "غير كافٍ تماماً لمريض بحالة صدمة نزفية." }
+                            ]
+                        }
+                    ]
+                },
+                septic_shock: {
+                    name: "طوارئ: صدمة إنتانية (Septic Shock)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: حزمة الإنعاش (Sepsis Bundle)",
+                            desc: "مريض مسن بارتفاع حرارة وخمول شديد. نبض 130، ضغط منهار 75/40، أكسجين 91%. ما التصرف؟",
+                            hr: 130, bp: "75/40", spo2: "91%",
+                            options: [
+                                { text: "إعطاء محلول ملح 30 مل/كغ ومضاد حيوي وريدي خلال ساعة", correct: true, feedback: "رائع! هذه هي الحزمة الذهبية الأولى لإنقاذ حياة مريض الصدمة الإنتانية." },
+                                { text: "الانتظار حتى نتيجة المزرعة", correct: false, feedback: "خطأ فادح! التأخير يرفع نسبة الوفيات." },
+                                { text: "اكتفِ بخافض الحرارة", correct: false, feedback: "غير كافٍ تماماً." }
+                            ]
+                        }
+                    ]
+                },
+                anaphylaxis: {
+                    name: "طوارئ: صدمة تحسسية مفرطة (Anaphylaxis)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: الاستجابة للحساسية القاتلة",
+                            desc: "مريض تعرض لدغة نحلة ويعاني من تورم بالشفتين، صفير بالصدر، وضغط 70/40. الإجراء الفوري؟",
+                            hr: 140, bp: "70/40", spo2: "88%",
+                            options: [
+                                { text: "إعطاء Adrenaline 0.5 mg عضلياً (IM) في الفخذ فوراً", correct: true, feedback: "ممتاز! الأدرينالين العضلي هو العلاج المنقذ للحياة والأول بلا منازع." },
+                                { text: "إعطاء مضاد هيستامين حبوب عن طريق الفم", correct: false, feedback: "بطيء جداً وغير كافٍ في حالات صدمة الحساسية المفرطة." },
+                                { text: "الانتظار لدخول العناية المركزة", correct: false, feedback: "خطأ قاتل!" }
+                            ]
+                        }
+                    ]
+                },
+                stemi: {
+                    name: "قلبية: احتشاء عضلة القلب الحاد (STEMI)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: ألم الصدر الحاد بالاستقبال",
+                            desc: "ألم ضاغط بالصدر مع ارتفاع وصلة ST في رسم القلب (V1-V4). ضغط 130/80. أول دواء؟",
+                            hr: 90, bp: "130/80", spo2: "95%",
+                            options: [
+                                { text: "أعطِ أسبرين للمضغ 300 ملغ مع Clopidogrel", correct: true, feedback: "صحيح تماماً! المضغ الفوري للأسبرين ينقذ عضلة القلب." },
+                                { text: "إعطاء دواء للسعال", correct: false, feedback: "خطأ خطير!" },
+                                { text: "الانتظار طوال الليل", correct: false, feedback: "خطأ فادح!" }
+                            ]
+                        }
+                    ]
+                },
+                svt: {
+                    name: "قلبية: تسارع نبضات القلب فوق البطيني (SVT)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: التعامل مع ضربات القلب السريعة جداً",
+                            desc: "شابة تعاني من خفقان شديد. رسم القلب يُظهر Narrow complex tachycardia بنبض 190 ضربة/دقيقة والضغط مستقر. أول خطوة؟",
+                            hr: 190, bp: "110/70", spo2: "98%",
+                            options: [
+                                { text: "عمل مناورة فاجية (Vagal maneuvers مثل Valsalva)", correct: true, feedback: "ممتاز! البدء بالوسائل غير الدوائية كالـ Valsalva هو الخطوة الأولى الآمنة." },
+                                { text: "الصدم الكهربائي المباشر (DC Cardioversion) فوراً", correct: false, feedback: "غير مبرر لكون المريض مستقراً ضغطياً، نبدأ بالأدوية أو المناورات أولاً." },
+                                { text: "إعطاء مدر بول قوي", correct: false, feedback: "لا علاقة له بالحالة." }
+                            ]
+                        }
+                    ]
+                },
+                peds_asthma: {
+                    name: "أطفال: نوبة ربو حادّة (Severe Asthma)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: ضيق التنفس الحاد عند الأطفال",
+                            desc: "طفل عمره 5 سنوات يعاني من كحة وصفير بالصدر وصعوبة بالتنفس وسحب عضلات الصدر (Intercostal retractions). أكسجين 90%. الإجراء الأول؟",
+                            hr: 150, bp: "100/65", spo2: "90%",
+                            options: [
+                                { text: "إعطاء جلسة استنشاق موسع شعب هوائية (Salbutamol Nebulizer) مع إعطاء أكسجين", correct: true, feedback: "صحيح جداً! موسعات الشعب والأكسجين هما أساس العلاج الطارئ." },
+                                { text: "إعطاء مضاد حيوي حبوب والانصراف", correct: false, feedback: "خطأ! الربو نوبة تضيق قصبات وليس عدوى بكتيرية أساسية." },
+                                { text: "الانتظار حتى يهدأ الطفل لوحده", correct: false, feedback: "خطأ خطير يعرض الطفل لنقص أكسجين خطير." }
+                            ]
+                        }
+                    ]
+                },
+                peds_dehydration: {
+                    name: "أطفال: جفاف حاد بسبب نزلة معوية (Dehydration)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: تقييم الجفاف الشديد",
+                            desc: "رضيع يعاني من إسهال وقيء، عيونه غائرة، خمول شديد، ولا يتبول منذ 8 ساعات. الإجراء الفوري؟",
+                            hr: 160, bp: "70/40", spo2: "96%",
+                            options: [
+                                { text: "تركيب وريد فورا وإعطاء محلول تعويض (IV Fluid bolus 20 ml/kg)", correct: true, feedback: "ممتاز! علامات الجفاف الشديد والصدمة عند الرضع تتطلب إعطاء سوائل وريدية سريعة." },
+                                { text: "إعطاء محلول معالجة جفاف بالفم فقط بكميات بطيئة", correct: false, feedback: "غير كافٍ لمريض وصل لمرحلة الصدمة الجفافية." },
+                                { text: "إعطاء أدوية إيقاف الإسهال والانصراف", correct: false, feedback: "خطأ فادح!" }
+                            ]
+                        }
+                    ]
+                },
+                acute_abdomen: {
+                    name: "جراحة: البطن الحاد والالتهاب الزائد (Acute Abdomen)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: تقييم ألم البطن الحاد بالاستقبال",
+                            desc: "شاب يحضر بألم بطن بدأ حول السرة ثم استقر في الرف السفلي الأيمن للبطن (RIF pain) مع غثيان وحرارة خفيفة. ما هو التشخيص الأرجح والإجراء؟",
+                            hr: 95, bp: "120/80", spo2: "99%",
+                            options: [
+                                { text: "اشتباه التهاب زائدة دودية حاد (Acute Appendicitis) ويتم استشارة الجراحة", correct: true, feedback: "صحيح تماماً! هذه هي القصة الكلاسيكية لالتهاب الزائدة الدودية." },
+                                { text: "إعطاء مسكن قوي وإخراج المريض للمنزل", correct: false, feedback: "خطأ خطير! قد يؤدي لانفجار الزائدة وحدوث التهاب بريتوني (Peritonitis)." },
+                                { text: "علاج عسر هضم فقط", correct: false, feedback: "غير صحيح." }
+                            ]
+                        }
+                    ]
+                },
+                trauma: {
+                    name: "جراحة: تقييم إصابات الحوادث (Trauma ATLS)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: تقييم مجرى الهواء والإصابات",
+                            desc: "مصاب حادث سيارة يصل الاستقبال فاقداً للوعي جزئياً، يعاني من نزيف بالرأس وصعوبة بالتنفس. ما هي أولوية الفحص حسب البروتوكول الدولي (ATLS)؟",
+                            hr: 130, bp: "85/50", spo2: "89%",
+                            options: [
+                                { text: "Airway with cervical spine control ثم Breathing (A, B, C)", correct: true, feedback: "ممتاز! الأولوية المطلقة في إصابات الحوادث هي تأمين مجرى الهواء والتنفس." },
+                                { text: "تصوير الأشعة العادية للقدمين واليدين أولاً", correct: false, feedback: "خطأ! الأطراف ليست أولوية مقارنة بالحياة ومجرى الهواء." },
+                                { text: "تخييط جرح الرأس أولاً", correct: false, feedback: "خطأ فادح!" }
+                            ]
+                        }
+                    ]
+                },
+                eclampsia: {
+                    name: "نساء: تسمم الحمل والتشنجات (Eclampsia)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: التعامل مع التشنجات الحملية",
+                            desc: "سيدة حامل في الشهر الثامن تحضر للاستقبال بتشنجات عضلية مفاجئة (Seizures). ضغط الدم 170/110. ما هو العلاج الإسعافي الأول للتشنجات؟",
+                            hr: 110, bp: "170/110", spo2: "94%",
+                            options: [
+                                { text: "إعطاء سلفات المغنيسيوم وريدياً/عضلياً (Magnesium Sulfate)", correct: true, feedback: "صحيح جداً! المغنيسيوم هو العلاج القياسي الأول لمنع وعلاج تشنجات إيكلامبسيا." },
+                                { text: "إعطاء أدوية منومة فقط", correct: false, feedback: "غير كافٍ للتحكم بتسمم الحمل." },
+                                { text: "الولادة القيصرية الفورية دون السيطرة على الضغط والتشنجات", correct: false, feedback: "خطأ خطر؛ يجب تثبيت الأم أولاً." }
+                            ]
+                        }
+                    ]
+                },
+                aph: {
+                    name: "نساء: النزيف المهبلي الشديد بالشهر الأخير (APH)",
+                    stages: [
+                        {
+                            title: "المرحلة 1: النزيف قبل الولادة",
+                            desc: "حامل في الأسبوع 34 تحضر بنزيف مهبلي أحمر فاتح غزير بدون ألم (Placenta Previa suspected). نبضها 120 والضغط 90/60. ما الممنوع تماماً في هذه الحالة؟",
+                            hr: 120, bp: "90/60", spo2: "98%",
+                            options: [
+                                { text: "إجراء فحص مهبلي بأصابع الطبيب (Digital Vaginal Examination)", correct: true, feedback: "ممتاز! الفحص المهبلي ممنوع قطعاً في الاشتباه بالمشيمة المتقدمة (Placenta Previa) لأنه قد يسبب نزيفاً صاعقاً." },
+                                { text: "تركيب كانيولا واسعة وسحب دم للتحاليل", correct: false, feedback: "هذا إجراء صحيح وضروري وليس ممنوعاً." },
+                                { text: "متابعة العلامات الحيوية للمريض", correct: false, feedback: "إجراء صحيح وضروي." }
+                            ]
+                        }
+                    ]
+                }
+            };
+
+            let currentSim = null;
+            let currentStageIdx = 0;
+            let simScore = 0;
+
+            window.startSimPro = function(key) {
+                currentSim = simScenarios[key];
+                currentStageIdx = 0;
+                simScore = 0;
+                document.getElementById('sim-start-screen').style.display = 'none';
+                document.getElementById('sim-game-screen').style.display = 'block';
+                document.getElementById('sim-patient-name').innerText = currentSim.name;
+                loadSimStage();
+            }
+
+            window.loadSimStage = function() {
+                const stage = currentSim.stages[currentStageIdx];
+                document.getElementById('sim-q-title').innerText = stage.title;
+                document.getElementById('sim-q-desc').innerText = stage.desc;
+                document.getElementById('sim-hr').innerText = stage.hr + " bpm";
+                document.getElementById('sim-bp').innerText = stage.bp;
+                document.getElementById('sim-spo2').innerText = stage.spo2;
+                document.getElementById('sim-score').innerText = simScore;
+
+                const optContainer = document.getElementById('sim-q-options');
+                optContainer.innerHTML = '';
+                document.getElementById('sim-feedback-box').style.display = 'none';
+                document.getElementById('sim-next-btn').style.display = 'none';
+
+                stage.options.forEach((opt, idx) => {
+                    let btn = document.createElement('button');
+                    btn.className = 'btn btn-outline-primary text-start p-3 fw-bold';
+                    btn.innerHTML = `<i class="fas fa-arrow-left me-2"></i> ${opt.text}`;
+                    btn.onclick = () => handleSimChoice(idx);
+                    optContainer.appendChild(btn);
+                });
+            }
+
+            window.handleSimChoice = function(idx) {
+                const stage = currentSim.stages[currentStageIdx];
+                const opt = stage.options[idx];
+                const feedBox = document.getElementById('sim-feedback-box');
+                feedBox.style.display = 'block';
+
+                const optButtons = document.getElementById('sim-q-options').children;
+                for(let b of optButtons) b.disabled = true;
+
+                if(opt.correct) {
+                    simScore += 50;
+                    feedBox.className = 'p-3 rounded mb-3 bg-success-subtle text-success border border-success fw-bold';
+                    feedBox.innerHTML = `<i class="fas fa-check-circle me-1"></i> صحيح جداً! ${opt.feedback}`;
+                } else {
+                    simScore = Math.max(0, simScore - 20);
+                    feedBox.className = 'p-3 rounded mb-3 bg-danger-subtle text-danger border border-danger fw-bold';
+                    feedBox.innerHTML = `<i class="fas fa-exclamation-triangle me-1"></i> ${opt.feedback}`;
+                }
+                document.getElementById('sim-score').innerText = simScore;
+
+                if(currentStageIdx < currentSim.stages.length - 1) {
+                    document.getElementById('sim-next-btn').style.display = 'inline-block';
+                } else {
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: '🎉 انتهى السيناريو بنجاح!',
+                            text: `لقد أنهيت حالة الطوارئ بنجاح بمجموع نقاط: ${simScore} نقطة.`,
+                            icon: 'success',
+                            confirmButtonText: 'إلغاء / عودة'
+                        }).then(() => resetSimPro());
+                    }, 1500);
+                }
+            }
+
+            window.nextSimStage = function() {
+                currentStageIdx++;
+                loadSimStage();
+            }
+
+            window.resetSimPro = function() {
+                document.getElementById('sim-game-screen').style.display = 'none';
+                document.getElementById('sim-start-screen').style.display = 'block';
+            }
+
+            const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+            // V27 quality-of-life and safety utilities
+            window.escapeHTML = function(value) {
+                return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+            };
+            window.runGlobalSearch = function() {
+                const q = (document.getElementById('global-search')?.value || '').trim().toLocaleLowerCase();
+                if (!q) { Swal.fire({title:'اكتب كلمة للبحث',text:'ابحث عن قسم أو أداة طبية في التطبيق.',icon:'info'}); return; }
+                const sections = [...document.querySelectorAll('.content-section')];
+                const match = sections.find(section => (section.innerText || '').toLocaleLowerCase().includes(q));
+                if (match) {
+                    showSection(match.id);
+                    const target = [...match.querySelectorAll('h3,h4,h5,h6,label,button,a')].find(el => (el.innerText || '').toLocaleLowerCase().includes(q));
+                    if (target) target.scrollIntoView({behavior:'smooth',block:'center'}); else match.scrollIntoView({behavior:'smooth',block:'start'});
+                    return;
+                }
+                Swal.fire({title:'لا توجد نتيجة',text:'جرّب كلمة أخرى أو اسم القسم.',icon:'info'});
+            };
+            document.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); document.getElementById('global-search')?.focus(); }
+            });
+            window.requestNotificationPermission = async function() {
+                if (!('Notification' in window)) { Swal.fire('غير مدعوم','المتصفح لا يدعم الإشعارات.','info'); return false; }
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') Swal.fire('الإشعارات غير مفعلة','ستظهر التنبيهات داخل التطبيق فقط أثناء فتحه.','warning');
+                return permission === 'granted';
+            };
+            const taskAlarmTimers = new Map();
+            window.scheduleTaskAlarm = async function(task) {
+                if (!task || !task.alarmAt || task.completed) return;
+                const delay = task.alarmAt - Date.now();
+                if (delay <= 0) return;
+                if (taskAlarmTimers.has(task.id)) clearTimeout(taskAlarmTimers.get(task.id));
+                const timer = setTimeout(async () => {
+                    const title = 'تذكير من Intern Hub';
+                    if ('Notification' in window && Notification.permission === 'granted') new Notification(title, {body: task.text});
+                    if (document.visibilityState === 'visible') Swal.fire({title, text:task.text, icon:'info', confirmButtonText:'حسناً'});
+                    taskAlarmTimers.delete(task.id);
+                }, Math.min(delay, 2147483647));
+                taskAlarmTimers.set(task.id, timer);
+            };
+
+            let isDark = localStorage.getItem('theme') === 'dark';
+            if(isDark) document.documentElement.setAttribute('data-theme', 'dark');
+            window.toggleDarkMode = function() { isDark = !isDark; document.documentElement.setAttribute('data-theme', isDark?'dark':'light'); localStorage.setItem('theme', isDark?'dark':'light'); }
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            window.showSection = function(id) {
+                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active', 'flex-active'));
+                document.querySelectorAll('.sidebar a, .nav-item-mob').forEach(el => el.classList.remove('active'));
+                document.getElementById(id).classList.add(['library', 'ai'].includes(id) ? 'flex-active' : 'active');
+                let dN = document.getElementById('nav-'+id); let mN = document.getElementById('mob-'+id);
+                if(dN) dN.classList.add('active'); if(mN) mN.classList.add('active'); else document.getElementById('mob-menu').classList.add('active');
+                updateDashboardStats(); if(id === 'ai') checkApiKey(); if(id === 'settings') renderCalendar(); if(id === 'analytics') renderAnalyticsChart(); if(id === 'library') renderLibrary();
+            }
+            window.toggleMobileMenu = function() { const m = document.getElementById('mobile-menu'); const o = document.getElementById('mobile-menu-overlay'); m.classList.toggle('open'); o.style.display = m.classList.contains('open') ? 'block' : 'none'; }
+            window.copyToClipboard = function(t) { navigator.clipboard.writeText(t).then(()=>{ Swal.fire({title:'تم النسخ!',icon:'success',toast:true,position:'top-end',showConfirmButton:false,timer:1500}); }); }
+
+            // VOICE
+            window.startDictation = function(inputId) {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { Swal.fire('غير مدعوم', 'متصفحك لا يدعم الإملاء الصوتي.', 'error'); return; }
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition; const rec = new SR(); rec.lang = 'ar-SA';
+                const inputEl = document.getElementById(inputId); const btnEl = inputEl.nextElementSibling;
+                if(btnEl) btnEl.classList.add('recording');
+                rec.onresult = function(e) { const text = e.results[0][0].transcript; if(inputEl.value) inputEl.value += " " + text; else inputEl.value = text; };
+                rec.onend = function() { if(btnEl) btnEl.classList.remove('recording'); }; rec.start();
+            }
+
+            // QR HANDOVER
+            window.generateQRCode = function() {
+                const sbarText = `🏥 تسليم: ${document.getElementById('sbar-name').value}\nS: ${document.getElementById('sbar-s').value}\nB: ${document.getElementById('sbar-b').value}\nA: ${document.getElementById('sbar-a').value}\nR: ${document.getElementById('sbar-r').value}`;
+                const qrArea = document.getElementById('qr-area'); const qrDiv = document.getElementById('qrcode');
+                qrDiv.innerHTML = ''; qrArea.style.display = 'block';
+                new QRCode(qrDiv, { text: sbarText, width: 180, height: 180 });
+            }
+            window.exportSBARPDF = function() { const el = document.getElementById('sbar-container'); const btns = document.getElementById('sbar-btns'); btns.style.display = 'none'; html2pdf().set({ margin: 10, filename: 'Handover_SBAR.pdf' }).from(el).save().then(() => { btns.style.display = 'flex'; }); }
+            window.generateSBAR = function() { generateQRCode(); }
+
+            // V20 NEW: Infusion Drip Calculator Logic
+            window.calcDrip = function() {
+                const drug = document.getElementById('drip-drug').value;
+                const wt = parseFloat(document.getElementById('drip-wt').value);
+                const dose = parseFloat(document.getElementById('drip-dose').value);
+                if(wt > 0 && dose >= 0) {
+                    let rate = 0;
+                    let note = "";
+                    if(drug === 'noradrenaline' || drug === 'adrenaline') {
+                        rate = (dose * wt * 60) / 80;
+                        note = "التركيز المحسوب: 4 مجم على 50 مل (80 ميكروغرام/مل)";
+                    } else if(drug === 'dopamine' || drug === 'dobutamine') {
+                        rate = (dose * wt * 60) / 4000;
+                        note = "التركيز المحسوب: 200 مجم على 50 مل (4000 ميكروغرام/مل)";
+                    }
+                    document.getElementById('drip-result').innerText = rate.toFixed(1);
+                    document.getElementById('drip-formula-note').innerText = note;
+                } else {
+                    document.getElementById('drip-result').innerText = "--";
+                    document.getElementById('drip-formula-note').innerText = "";
+                }
+            }
+
+            // V20 NEW: Lab Abnormalities Guide Logic
+            const labGuides = {
+                hyponatremia: "<b>🔹 الأسباب الشائعة:</b> فرط السوائل (CHF, Cirrhosis), الجفاف الحاد, استخدام الأدوية (Diuretics).<br><b>🔹 خطة العمل الفورية:</b> تقييم حالة Volume status للمريض. إذا كان هناك أعراض عصبية حادة (تشنجات)، يُعطى 100 مل من NaCl 3% وريدياً بسرعة مع متابعة الصوديوم بحذر.",
+                hyperkalemia: "<b>🔹 الأسباب الشائعة:</b> الفشل الكلوي الحاد، الأدوية (ACEi, ARBs, Spironolactone)، انحلال الخلايا.<br><b>🔹 خطة العمل الفورية:</b> اطلب رسم قلب (ECG) فوراً بحثاً عن Tall T-waves أو Wide QRS. أعطِ Calcium Gluconate لحماية القلب، ثم Insulin + Glucose وريدياً.",
+                hypokalemia: "<b>🔹 الأسباب الشائعة:</b> الإسهال/القيء الشديد، استخدام مدرات البول (Furosemide / Thiazides).<br><b>🔹 خطة العمل الفورية:</b> تعويض البوتاسيوم تدريجياً عبر الفم أو بالتخفيف البطيء وريدياً (لا يُعطى بوتاسيوم حقناً مباشراً IV Push أبداً).",
+                troponin: "<b>🔹 الأسباب الشائعة:</b> احتشاء عضلة القلب الحاد (STEMI/NSTEMI)، التهاب عضلة القلب، PE.<br><b>🔹 خطة العمل الفورية:</b> عمل ECG 12-lead خلال 10 دقائق، البدء بـ Aspirin + Clopidogrel واستدعاء طبيب القلب المناوب.",
+                cr_high: "<b>🔹 الأسباب الشائعة:</b> جفاف حاد (Pre-renal AKI)، اعتلال كلوي بسبب أدوية أو صبغات.<br><b>🔹 خطة العمل الفورية:</b> وقف أي أدوية تضر الكلى (Nephrotoxic drugs)، تقييم السوائل، وعمل سونار على الكلى والمسالك البولية."
+            };
+            window.showLabGuide = function() {
+                const val = document.getElementById('lab-select').value;
+                const box = document.getElementById('lab-guide-box');
+                box.innerHTML = labGuides[val] || "اختر تحليلاً لعرض التفاصيل.";
+            }
+
+            // QUESTION BANK — local storage, review, timed exams, and source-grounded draft extraction.
+            const QB_KEY='internHubQuestionBankV1', QBP_KEY='internHubQuestionProgressV1';
+            const qbSeed=[
+              ['Emergency','ما العلاج الدوائي الأول في Anaphylaxis؟',['Hydrocortisone أولاً','Adrenaline عضلياً في الجانب الأمامي الوحشي للفخذ','مضاد هيستامين فقط','مراقبة دون علاج'],1,'Adrenaline العضلي هو العلاج الأول؛ لا تؤخره من أجل الستيرويد أو مضاد الهيستامين. اتبع بروتوكول الجرعات المحلي.'],
+              ['Emergency','فرط بوتاسيوم مع تغيّرات ECG خطرة: ما الذي يثبّت غشاء القلب مؤقتاً؟',['Calcium gluconate وريدي','Furosemide فموي','Insulin دون glucose','مضاد حيوي'],0,'الكالسيوم الوريدي يحمي القلب مؤقتاً لكنه لا يخفض البوتاسيوم نفسه؛ يلزم علاج إضافي ومراقبة ECG وإعادة قياس البوتاسيوم.'],
+              ['Cardiology','عند الاشتباه بـ ACS، متى ينبغي إجراء ECG أولي؟',['خلال 10 دقائق من الوصول','بعد 6 ساعات دائماً','بعد اختبار الجهد','لا حاجة إليه إن كان الألم خفيفاً'],0,'يُجرى ECG من 12 اشتقاقاً سريعاً، ويُفسر مع الأعراض والتروبونين المتسلسل.'],
+              ['Nephrology','ما سبب شائع لارتفاع كاذب في potassium؟',['Hemolysis بالعينة','نقص HDL','انخفاض الألبومين وحده','ارتفاع الكالسيوم'],0,'انحلال الدم في العينة قد يرفع البوتاسيوم المقاس. أعد العينة عند الشك، دون تأخير التدبير إذا كان المريض غير مستقر.'],
+              ['Respiratory','أي علامة تشير إلى ربو شديد مهدد للحياة؟',['Silent chest مع إنهاك أو اضطراب وعي','عطاس فقط','سعال خفيف مع كلام طبيعي','تحسن peak flow'],0,'Silent chest أو الإنهاك أو اضطراب الوعي علامات خطر تتطلب تقييماً وعلاجاً إسعافياً.'],
+              ['Endocrinology','مريض واعٍ لديه hypoglycemia ويمكنه البلع بأمان؛ ما التصرف الأول المعتاد؟',['كربوهيدرات سريعة ثم إعادة السكر بعد 15 دقيقة','إنسولين سريع','منع الطعام','Potassium IV push'],0,'أعطِ كربوهيدرات سريعة الامتصاص ثم أعد قياس السكر عادةً بعد 15 دقيقة. اضطراب الوعي أو عدم أمان البلع يغير التدبير.'],
+              ['Endocrinology','ما المبدأ المهم عند علاج DKA بالإنسولين؟',['تجاهل البوتاسيوم','تقييم وتصحيح potassium ومراقبته','إيقاف السوائل دائماً','Bicarbonate روتينياً لكل الحالات'],1,'الإنسولين قد يخفض بوتاسيوم المصل؛ قيّم البوتاسيوم وصححه وفق البروتوكول قبل وأثناء العلاج.'],
+              ['Neurology','ما المعلومة الزمنية المهمة فور الاشتباه بسكتة دماغية؟',['Last known well','آخر وجبة فقط','وقت آخر نوم قبل أسبوع','لا أهمية للوقت'],0,'حدد آخر وقت كان فيه المريض طبيعياً، قيّم ABC وسكر الدم، وفعّل مسار السكتة والتصوير العاجل.'],
+              ['Infectious Diseases','عند الاشتباه بإنتان مع صدمة، ما الأولوية العامة؟',['ABC والإنعاش والعلاج السريع وفق البروتوكول','انتظار نتيجة المزرعة دون علاج','مضاد فموي فقط مهما كانت الحالة','إيقاف مراقبة العلامات الحيوية'],0,'الإنتان حالة طارئة؛ ابدأ التقييم والإنعاش سريعاً، وخذ المزارع إن لم تؤخر العلاج بشكل مهم.'],
+              ['Gastroenterology','في نزف GI مع عدم استقرار الدورة الدموية، ما الأولوية؟',['ABC والوصول الوريدي والإنعاش','تنظير قبل تثبيت المريض','NSAIDs','خروج دون تقييم'],0,'ابدأ بتقييم ABC، والوصول الوريدي والإنعاش والفحوص وتحضير الدم عند الحاجة؛ يحدد الاستقرار توقيت التنظير.'],
+              ['Nephrology','ما الذي يعرّف AKI بصورة عامة؟',['تغير حاد بوظيفة الكلى وفق الكرياتينين و/أو إدرار البول','ارتفاع اليوريا فقط دائماً','وجود proteinuria في كل الحالات','مرض كلوي مزمن فقط'],0,'يعتمد التعريف على معايير زمنية للكرياتينين و/أو البول. قيّم الحجم والأدوية والانسداد والأسباب الكلوية.'],
+              ['Surgery','أي علامة قد تشير إلى peritonitis؟',['Guarding أو rigidity مع ألم بطني','حكة جلدية فقط','عطاس','شهية جيدة'],0,'الـ guarding أو rigidity قد يشيران لتهيج بريتوني ويستلزمان تقييماً عاجلاً واستشارة مناسبة.'],
+              ['Obstetrics','أي عرض في الحمل يستدعي تقييماً عاجلاً لاحتمال pre-eclampsia شديدة؟',['صداع شديد مستمر أو اضطراب الرؤية','شهية زائدة فقط','عطاس','ألم عضلي بعد الرياضة فقط'],0,'الصداع الشديد المستمر واضطراب الرؤية وألم الشرسوف أو الضغط الشديد تستدعي تقييماً عاجلاً للأم والجنين.'],
+              ['Pediatrics','ما علامة الخطر لدى طفل لديه صعوبة تنفس؟',['زرقة أو انقطاع نفس أو إنهاك/انخفاض وعي','سيلان أنف مع نشاط طبيعي','عطاس فقط','شهية جيدة'],0,'الزرقة أو انقطاع النفس أو الإنهاك أو اضطراب الوعي تستدعي تقييماً إسعافياً وفق ABC.'],
+              ['Hematology','ما الفحص الأولي الشائع لتقييم anemia؟',['CBC مع red cell indices','Troponin فقط','D-dimer لكل الحالات','Amylase'],0,'ابدأ غالباً بـ CBC والمؤشرات، ثم اختر الفحوص مثل ferritin أو B12/folate وفق MCV والسياق.'],
+              ['Clinical Skills','ما العناصر الأساسية للموافقة المستنيرة؟',['شرح الإجراء والمخاطر والفوائد والبدائل والتحقق من الفهم والطوعية','التوقيع فقط دون شرح','إخفاء البدائل','إجبار المريض'],0,'الموافقة عملية تواصل تشمل معلومات مفهومة وطوعية وقدرة على اتخاذ القرار وتوثيقاً مناسباً.'],
+              ['Emergency','ما التقييم الأولي المنظم للمريض فاقد الوعي؟',['ABC وطلب المساعدة وقياس glucose مبكراً','سوائل فموية','تاريخ مطول قبل فحص التنفس','إجباره على الوقوف'],0,'ابدأ ABC واطلب المساعدة وافحص الأسباب القابلة للعلاج مثل نقص السكر. لا تعطِ شيئاً فموياً لمن لا يحمي مجرى الهواء.'],
+              ['Pharmacology','ما الاستخدام الآمن للمضادات الحيوية؟',['اختيارها حسب موضع العدوى والشدة والزرع عند ملاءمته','استخدامها لكل عدوى فيروسية','مشاركة الوصفة','تغييرها عشوائياً'],0,'اختر العلاج وفق المصدر والميكروبات المحتملة والمقاومة المحلية ووظائف الأعضاء، ثم راجعه عند ظهور النتائج.'],
+              ['Cardiology','هل يستبعد ECG أولي غير تشخيصي وجود ACS؟',['نعم دائماً','لا؛ قد يلزم ECG متكرر وتقييم التروبونين والسياق','نعم إذا كان الألم شديداً','لا حاجة لتقييم إضافي'],1,'ECG غير التشخيصي لا يستبعد ACS وحده؛ يلزم تقييم سريري وتروبونين متسلسل وقد يلزم تكرار ECG.'],
+              ['Clinical Skills','ما الهدف من medication reconciliation؟',['تحديد الأدوية الفعلية ومقارنة القوائم لمنع الأخطاء','زيادة عدد الأدوية','إلغاء كل الأدوية','استبدال أخذ التاريخ المرضي'],0,'تساعد مطابقة الأدوية في اكتشاف التكرار والتداخلات والأدوية المفقودة أو غير الصحيحة عند الانتقال بين مستويات الرعاية.']
+            ].map((x,i)=>({id:'seed-'+String(i+1).padStart(3,'0'),category:x[0],difficulty:'متوسط',q:x[1],options:x[2],correct:x[3],a:x[4],tags:[],source:'أسئلة تعليمية أولية — تحقّق من المرجع'}));
+            let questionBank=[], questionProgress={}, qbSessionIds=[], qbSessionIndex=0, qbCurrentAnswered=false, qbEditorModal=null, qbSourceModal=null, qbExamTimer=null, qbExamEnd=0, qbExamActive=false, qbExamAnswers={};
+            const qbEscape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const qbNewId=()=> 'q-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+            function qbNormalize(q){if(!q||typeof q!=='object'||typeof q.q!=='string'||!q.q.trim()||typeof q.a!=='string'||!q.a.trim())return null;let options=Array.isArray(q.options)?q.options.map(v=>String(v).trim()).filter(Boolean).slice(0,6):[];let correct=Number(q.correct);if(options.length<2||!Number.isInteger(correct)||correct<0||correct>=options.length)correct=null;return{id:String(q.id||qbNewId()),category:String(q.category||'عام').slice(0,80),difficulty:String(q.difficulty||'متوسط').slice(0,20),q:q.q.trim().slice(0,5000),options,correct,a:q.a.trim().slice(0,10000),tags:Array.isArray(q.tags)?q.tags.map(v=>String(v).slice(0,60)).slice(0,20):[],source:String(q.source||'').slice(0,500)};}
+            function qbSave(){try{localStorage.setItem(QB_KEY,JSON.stringify(questionBank));localStorage.setItem(QBP_KEY,JSON.stringify(questionProgress));}catch(e){console.warn('Question bank local save failed',e);}}
+            function qbInit(){try{const v=JSON.parse(localStorage.getItem(QB_KEY)||'null');questionBank=Array.isArray(v)?v.map(qbNormalize).filter(Boolean):qbSeed;}catch{questionBank=qbSeed;}try{questionProgress=JSON.parse(localStorage.getItem(QBP_KEY)||'{}')||{};}catch{questionProgress={};}questionBank.forEach(q=>{if(!questionProgress[q.id])questionProgress[q.id]={attempts:0,correct:0,bookmarked:false,review:false};});qbSave();}
+            function qbPool(){const search=(document.getElementById('qb-search').value||'').toLowerCase().trim(),cat=document.getElementById('qb-category').value,filter=document.getElementById('qb-filter').value;return questionBank.filter(q=>{const p=questionProgress[q.id]||{},hay=[q.q,q.a,q.category,...q.options,...q.tags,q.source].join(' ').toLowerCase();return(!search||hay.includes(search))&&(!cat||q.category===cat)&&(filter==='all'||(filter==='bookmarked'&&p.bookmarked)||(filter==='review'&&p.review)||(filter==='unattempted'&&!p.attempts));});}
+            window.renderQuestionBank=function(){const cat=document.getElementById('qb-category'),old=cat.value,cats=[...new Set(questionBank.map(q=>q.category))].sort();cat.innerHTML='<option value="">كل التخصصات</option>'+cats.map(c=>`<option value="${qbEscape(c)}">${qbEscape(c)}</option>`).join('');if(cats.includes(old))cat.value=old;const pool=qbPool(),ps=Object.values(questionProgress),attempts=ps.reduce((n,p)=>n+(p.attempts||0),0),correct=ps.reduce((n,p)=>n+(p.correct||0),0);document.getElementById('qb-total').textContent=questionBank.length;document.getElementById('qb-attempted').textContent=attempts;document.getElementById('qb-accuracy').textContent=attempts?Math.round(correct/attempts*100)+'%':'—';document.getElementById('qb-review-count').textContent=questionBank.filter(q=>questionProgress[q.id]?.review).length;document.getElementById('qb-list-count').textContent=pool.length+' سؤال';document.getElementById('qb-question-list').innerHTML=pool.length?pool.map(q=>`<div class="border rounded p-3 d-flex gap-2 align-items-start"><div class="flex-grow-1"><div class="small text-muted">${qbEscape(q.category)} · ${qbEscape(q.difficulty)}${questionProgress[q.id]?.review?' · للمراجعة':''}${questionProgress[q.id]?.bookmarked?' · ★ محفوظ':''}</div><div class="fw-semibold">${qbEscape(q.q)}</div><div class="small text-muted mt-1">${q.options.length} اختيارات ${q.source?' · المصدر: '+qbEscape(q.source):''}</div></div><div class="d-flex flex-column gap-1"><button class="btn btn-sm btn-outline-primary" onclick="startSpecificQuestion('${qbEscape(q.id)}')" title="مراجعة">▶</button><button class="btn btn-sm btn-outline-secondary" onclick="openQuestionEditor('${qbEscape(q.id)}')" title="تعديل">✎</button><button class="btn btn-sm btn-outline-danger" onclick="deleteQuestion('${qbEscape(q.id)}')" title="حذف">×</button></div></div>`).join(''):'<div class="text-center text-muted p-4">لا توجد أسئلة مطابقة للفلاتر.</div>';};
+            window.setQuestionMode=function(){if(document.getElementById('qb-mode').value==='exam')document.getElementById('qb-reveal-btn').textContent='إنهاء / تسليم الامتحان';else document.getElementById('qb-reveal-btn').textContent='إظهار الإجابة والشرح';if(qbSessionIds.length)qbRenderCurrent();};
+            window.startQuestionSession=function(randomize=false){let pool=qbPool();const mode=document.getElementById('qb-mode').value;if(mode==='exam'){const n=document.getElementById('qb-exam-count').value;pool=pool.filter(q=>q.options.length>=2&&q.correct!==null);if(n!=='all')pool=pool.slice(0,Math.max(1,Number(n)||10));randomize=true;qbExamAnswers={};qbExamActive=true;qbExamEnd=Date.now()+Number(document.getElementById('qb-exam-minutes').value||20)*60000;if(qbExamTimer)clearInterval(qbExamTimer);qbExamTimer=setInterval(qbUpdateTimer,1000);}if(randomize)pool=pool.slice().sort(()=>Math.random()-.5);qbSessionIds=pool.map(q=>q.id);qbSessionIndex=0;qbCurrentAnswered=false;if(!qbSessionIds.length){document.getElementById('qb-session-status').textContent='لا توجد أسئلة مناسبة لهذه الجلسة.';document.getElementById('qb-empty').style.display='block';document.getElementById('qb-question-view').style.display='none';if(qbExamTimer)clearInterval(qbExamTimer);return;}qbRenderCurrent();};
+            function qbUpdateTimer(){if(!qbExamActive)return;const left=Math.max(0,qbExamEnd-Date.now());document.getElementById('qb-session-status').textContent=`الامتحان المؤقت · الوقت المتبقي ${Math.floor(left/60000)}:${String(Math.floor(left%60000/1000)).padStart(2,'0')}`;if(!left)window.submitQuestionExam(true);}
+            window.startSpecificQuestion=function(id){qbExamActive=false;if(qbExamTimer)clearInterval(qbExamTimer);qbSessionIds=[id];qbSessionIndex=0;qbCurrentAnswered=false;document.getElementById('qb-mode').value=questionBank.find(q=>q.id===id)?.options.length?'mcq':'flashcard';qbRenderCurrent();document.getElementById('qb-session').scrollIntoView({behavior:'smooth',block:'start'});};
+            function qbRenderCurrent(){const q=questionBank.find(x=>x.id===qbSessionIds[qbSessionIndex]);if(!q){document.getElementById('qb-empty').style.display='block';document.getElementById('qb-question-view').style.display='none';return;}qbCurrentAnswered=!!(qbExamActive&&Object.prototype.hasOwnProperty.call(qbExamAnswers,q.id));document.getElementById('qb-empty').style.display='none';document.getElementById('qb-question-view').style.display='block';document.getElementById('qb-question-category').textContent=q.category+' · '+q.difficulty;document.getElementById('qb-question-counter').textContent=`السؤال ${qbSessionIndex+1} من ${qbSessionIds.length}`;document.getElementById('qb-question-text').textContent=q.q;const mode=document.getElementById('qb-mode').value,options=document.getElementById('qb-options');options.innerHTML='';if(mode==='mcq'||mode==='exam'){if(q.options.length){q.options.forEach((opt,i)=>{const b=document.createElement('button');b.type='button';b.className='btn btn-outline-secondary text-start p-3';b.textContent=String.fromCharCode(65+i)+'. '+opt;if(qbExamActive){b.classList.toggle('active',qbExamAnswers[q.id]===i);b.onclick=()=>{qbExamAnswers[q.id]=i;qbRenderOptionsOnly(q);};}else b.onclick=()=>qbAnswer(i);options.appendChild(b);});}else options.innerHTML='<div class="alert alert-info">بطاقة مراجعة دون اختيارات.</div>';}document.getElementById('qb-answer-panel').style.display='none';document.getElementById('qb-reveal-btn').style.display='inline-block';document.getElementById('qb-reveal-btn').textContent=qbExamActive?'تسليم الامتحان':'إظهار الإجابة والشرح';document.getElementById('qb-bookmark-btn').innerHTML=questionProgress[q.id]?.bookmarked?'★ محفوظ':'☆ حفظ للمراجعة';document.getElementById('qb-session-status').textContent=qbExamActive?'الامتحان جارٍ — اختر الإجابات ثم سلّم الامتحان':`${questionBank.length} سؤال في البنك`;}
+            function qbRenderOptionsOnly(q){[...document.getElementById('qb-options').children].forEach((b,i)=>{b.classList.toggle('active',qbExamAnswers[q.id]===i);b.setAttribute('aria-pressed',String(qbExamAnswers[q.id]===i));});}
+            function qbShowAnswer(q,heading='الإجابة والشرح'){const panel=document.getElementById('qb-answer-panel');panel.style.display='block';const correct=q.correct!==null&&q.options[q.correct]?`<div class="fw-bold mb-2">الإجابة الصحيحة: ${qbEscape(q.options[q.correct])}</div>`:'';panel.innerHTML=`<div class="fw-bold mb-2">${qbEscape(heading)}</div>${correct}<div style="white-space:pre-wrap">${qbEscape(q.a)}</div>${q.source?`<div class="small text-muted mt-2">المصدر: ${qbEscape(q.source)}</div>`:''}${q.tags?.length?`<div class="small text-muted mt-2">وسوم: ${q.tags.map(qbEscape).join('، ')}</div>`:''}`;}
+            function qbAnswer(index){if(qbCurrentAnswered)return;const q=questionBank.find(x=>x.id===qbSessionIds[qbSessionIndex]);if(!q||q.correct===null)return;qbCurrentAnswered=true;const p=questionProgress[q.id]||(questionProgress[q.id]={attempts:0,correct:0,bookmarked:false,review:false});const ok=index===q.correct;p.attempts=(p.attempts||0)+1;if(ok)p.correct=(p.correct||0)+1;p.review=!ok;p.lastSeen=new Date().toISOString();qbSave();[...document.getElementById('qb-options').children].forEach((b,i)=>{b.disabled=true;b.classList.remove('btn-outline-secondary');b.classList.add(i===q.correct?'btn-success':(i===index?'btn-danger':'btn-outline-secondary'));});qbShowAnswer(q,ok?'إجابة صحيحة':'إجابة غير صحيحة');document.getElementById('qb-reveal-btn').style.display='none';renderQuestionBank();}
+            window.revealQuestionAnswer=function(){if(qbExamActive){window.submitQuestionExam(false);return;}const q=questionBank.find(x=>x.id===qbSessionIds[qbSessionIndex]);if(!q)return;if(!qbCurrentAnswered){const p=questionProgress[q.id]||(questionProgress[q.id]={attempts:0,correct:0,bookmarked:false,review:false});p.attempts=(p.attempts||0)+1;p.review=true;p.lastSeen=new Date().toISOString();qbSave();qbCurrentAnswered=true;}qbShowAnswer(q);document.getElementById('qb-reveal-btn').style.display='none';renderQuestionBank();};
+            window.submitQuestionExam=async function(auto=false){if(!qbExamActive)return;qbExamActive=false;if(qbExamTimer)clearInterval(qbExamTimer);let right=0,answered=0;qbSessionIds.forEach(id=>{const q=questionBank.find(x=>x.id===id),choice=qbExamAnswers[id];if(Number.isInteger(choice)){answered++;const p=questionProgress[id]||(questionProgress[id]={attempts:0,correct:0,bookmarked:false,review:false});p.attempts=(p.attempts||0)+1;if(choice===q.correct){right++;p.correct=(p.correct||0)+1;p.review=false;}else p.review=true;p.lastSeen=new Date().toISOString();}});qbSave();renderQuestionBank();document.getElementById('qb-options').innerHTML='';document.getElementById('qb-answer-panel').style.display='block';document.getElementById('qb-answer-panel').innerHTML=`<h5>نتيجة الامتحان</h5><p class="mb-1">النتيجة: <strong>${right} / ${qbSessionIds.length}</strong> (${Math.round(right/Math.max(1,qbSessionIds.length)*100)}%)</p><p class="mb-0">أجبت عن ${answered} سؤالًا من ${qbSessionIds.length}. ${auto?'انتهى الوقت وتم التسليم تلقائيًا.':'تم تسليم الامتحان.'}</p>`;document.getElementById('qb-reveal-btn').style.display='none';document.getElementById('qb-session-status').textContent='انتهى الامتحان — راجع الأسئلة التي أخطأت بها.';await Swal.fire('انتهى الامتحان',`نتيجتك ${right}/${qbSessionIds.length} — ${Math.round(right/Math.max(1,qbSessionIds.length)*100)}%`,'info');};
+            window.nextQuestion=function(){if(!qbSessionIds.length)return;if(qbSessionIndex>=qbSessionIds.length-1){if(qbExamActive){window.submitQuestionExam(false);return;}document.getElementById('qb-session-status').textContent='اكتملت الجلسة — ابدأ جلسة جديدة للمراجعة.';document.getElementById('qb-question-counter').textContent='اكتملت الجلسة';return;}qbSessionIndex++;qbRenderCurrent();};window.skipQuestion=function(){window.nextQuestion();};
+            window.toggleQuestionBookmark=function(){const q=questionBank.find(x=>x.id===qbSessionIds[qbSessionIndex]);if(!q)return;const p=questionProgress[q.id]||(questionProgress[q.id]={attempts:0,correct:0,bookmarked:false,review:false});p.bookmarked=!p.bookmarked;qbSave();document.getElementById('qb-bookmark-btn').textContent=p.bookmarked?'★ محفوظ':'☆ حفظ للمراجعة';renderQuestionBank();};
+            window.resetQuestionSession=function(){qbExamActive=false;if(qbExamTimer)clearInterval(qbExamTimer);qbSessionIds=[];qbSessionIndex=0;document.getElementById('qb-empty').style.display='block';document.getElementById('qb-question-view').style.display='none';document.getElementById('qb-session-status').textContent='تمت إعادة الجلسة.';};
+            window.openQuestionEditor=function(id=''){const q=questionBank.find(x=>x.id===id);document.getElementById('qb-editor-title').textContent=q?'تعديل سؤال':'إضافة سؤال';document.getElementById('qb-edit-id').value=q?.id||'';document.getElementById('qb-edit-question').value=q?.q||'';document.getElementById('qb-edit-category').value=q?.category||'';document.getElementById('qb-edit-difficulty').value=q?.difficulty||'متوسط';document.getElementById('qb-edit-answer').value=q?.a||'';document.getElementById('qb-edit-correct').value=q?.correct!==null&&q?.correct!==undefined?q.correct+1:'';document.getElementById('qb-edit-tags').value=(q?.tags||[]).join(', ');const holder=document.getElementById('qb-edit-options');holder.innerHTML='';for(let i=0;i<6;i++){const wrap=document.createElement('div');wrap.className='col-md-6';const label=document.createElement('label');label.className='form-label';label.textContent='اختيار '+(i+1);const input=document.createElement('input');input.className='form-control';input.id='qb-opt-'+i;input.maxLength=500;input.value=q?.options?.[i]||'';wrap.append(label,input);holder.appendChild(wrap);}if(!qbEditorModal)qbEditorModal=new bootstrap.Modal(document.getElementById('qb-editor-modal'));qbEditorModal.show();};
+            window.saveQuestionFromEditor=function(){const qtext=document.getElementById('qb-edit-question').value.trim(),category=document.getElementById('qb-edit-category').value.trim(),a=document.getElementById('qb-edit-answer').value.trim(),opts=Array.from({length:6},(_,i)=>document.getElementById('qb-opt-'+i).value.trim()).filter(Boolean),raw=document.getElementById('qb-edit-correct').value.trim(),correct=raw?Number(raw)-1:null;if(!qtext||!category||!a)return Swal.fire('بيانات ناقصة','أدخل السؤال والتخصص والإجابة والشرح.','warning');if(opts.length===1)return Swal.fire('الاختيارات غير مكتملة','أدخل اختيارين على الأقل أو اتركها فارغة للبطاقة.','warning');if(opts.length&&(!Number.isInteger(correct)||correct<0||correct>=opts.length))return Swal.fire('حدد الإجابة الصحيحة','اكتب رقم الاختيار الصحيح.','warning');const id=document.getElementById('qb-edit-id').value||qbNewId(),obj=qbNormalize({id,q:qtext,category,difficulty:document.getElementById('qb-edit-difficulty').value,options:opts,correct,a,tags:document.getElementById('qb-edit-tags').value.split(',').map(x=>x.trim()).filter(Boolean)}),i=questionBank.findIndex(q=>q.id===id);if(i>=0)questionBank[i]=obj;else{questionBank.push(obj);questionProgress[id]={attempts:0,correct:0,bookmarked:false,review:false};}qbSave();qbEditorModal.hide();renderQuestionBank();Swal.fire('تم الحفظ','حُفظ السؤال على هذا الجهاز.','success');};
+            window.deleteQuestion=async function(id){const q=questionBank.find(q=>q.id===id);if(!q)return;const r=await Swal.fire({title:'حذف السؤال؟',text:q.q.slice(0,100),icon:'warning',showCancelButton:true,confirmButtonText:'حذف',cancelButtonText:'إلغاء'});if(!r.isConfirmed)return;questionBank=questionBank.filter(q=>q.id!==id);delete questionProgress[id];qbSessionIds=qbSessionIds.filter(x=>x!==id);qbSave();renderQuestionBank();};
+            window.exportQuestionBank=function(){const data={app:'InternHubQuestionBank',schemaVersion:2,exportedAt:new Date().toISOString(),questions:questionBank,progress:questionProgress},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='InternHub_QuestionBank_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+            window.importQuestionBank=async function(e){const f=e.target.files?.[0];if(!f)return;try{if(f.size>10*1024*1024)throw Error('الحد الأقصى لحجم الملف 10 MB.');const data=JSON.parse(await f.text()),raw=Array.isArray(data)?data:data.questions;if(!Array.isArray(raw)||!raw.length)throw Error('لم يتم العثور على قائمة أسئلة صالحة.');const qs=raw.map(qbNormalize).filter(Boolean);if(!qs.length)throw Error('الأسئلة غير صالحة؛ يجب أن يحتوي كل سؤال على q وa.');const choice=await Swal.fire({title:'استيراد الأسئلة',text:`تم العثور على ${qs.length} سؤالاً. اختر الدمج أو الاستبدال.`,icon:'question',showCancelButton:true,showDenyButton:true,confirmButtonText:'دمج',denyButtonText:'استبدال',cancelButtonText:'إلغاء'});if(choice.isDismissed)return;if(choice.isDenied){questionBank=qs;questionProgress={};}else{const map=new Map(questionBank.map(q=>[q.id,q]));qs.forEach(q=>{if(map.has(q.id))q.id=qbNewId();map.set(q.id,q);});questionBank=[...map.values()];}questionBank.forEach(q=>{if(!questionProgress[q.id])questionProgress[q.id]={attempts:0,correct:0,bookmarked:false,review:false};});if(data.progress&&typeof data.progress==='object')questionProgress={...questionProgress,...data.progress};qbSave();renderQuestionBank();Swal.fire('اكتمل الاستيراد',`تم تحميل ${qs.length} سؤالاً.`,'success');}catch(err){Swal.fire('تعذر الاستيراد',err.message||'ملف غير صالح.','error');}finally{e.target.value='';}};
+            // Source files are parsed locally; generated questions are explicitly drafts tied to quoted source text.
+            let qbDrafts=[];
+            window.openSourceImport=function(){if(!qbSourceModal)qbSourceModal=new bootstrap.Modal(document.getElementById('qb-source-modal'));qbSourceModal.show();};
+            window.clearSourceDrafts=function(){qbDrafts=[];document.getElementById('qb-source-preview').innerHTML='';document.getElementById('qb-source-status').textContent='';document.getElementById('qb-source-file').value='';};
+            async function qbExtractFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='txt'||ext==='csv')return await file.text();if(ext==='pdf'){if(!window.pdfjsLib)throw Error('مكتبة قراءة PDF غير متاحة؛ تحقق من اتصال الإنترنت.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const doc=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let out=[];for(let i=1;i<=doc.numPages;i++){const page=await doc.getPage(i),content=await page.getTextContent(),text=content.items.map(x=>x.str).join(' ');if(text.trim())out.push(`[صفحة ${i}] ${text}`);}return out.join('\n');}if(ext==='docx'){if(!window.mammoth)throw Error('مكتبة Word غير متاحة؛ تحقق من اتصال الإنترنت.');const r=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return r.value;}if(ext==='xlsx'||ext==='xls'){if(!window.XLSX)throw Error('مكتبة Excel غير متاحة؛ تحقق من اتصال الإنترنت.');const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});return wb.SheetNames.map(n=>'[ورقة: '+n+']\n'+XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n\n');}throw Error('صيغة الملف غير مدعومة.');}
+            function qbMakeDrafts(text,category,filename){const clean=text.replace(/\r/g,'').split(/\n|(?<=[.!?؟])\s+/).map(x=>x.replace(/\s+/g,' ').trim()).filter(x=>x.length>=45&&x.length<=600&&!/^\[صفحة|^\[ورقة/.test(x));const stop=new Set(['this','that','with','from','were','have','which','their','there','when','where','what','into','than','then','also','been','being','after','before','during','should','would','could','about','because','these','those','such','only','more','most','very','does','using','used','each','other','between','within','without','following','including','therefore','however','patient','patients']);const out=[];for(const sentence of clean){if(out.length>=40)break;const terms=sentence.match(/\b[A-Z][A-Za-z-]{3,}\b|\b\d+(?:\.\d+)?\s?(?:mg|g|mmol|mEq|mmHg|%|hours?|days?)?\b/g)||[];let term=terms.find(t=>!stop.has(t.toLowerCase())&&t.length>=4);if(!term){const words=sentence.match(/[A-Za-z][A-Za-z-]{5,}/g)||[];term=words.find(t=>!stop.has(t.toLowerCase()));}if(!term)continue;const masked=sentence.replace(term,'________');if(masked===sentence)continue;out.push({id:qbNewId(),category:category||'مستخرج من ملف',difficulty:'مراجعة',q:'أكمل العبارة وفق النص المصدر: '+masked,options:[],correct:null,a:'الإجابة المستخرجة من النص: '+term+'\n\nالنص الأصلي: “'+sentence+'”\n\nهذه مسودة آلية مبنية على جملة المصدر؛ تحقّق من السياق وصحة الإجابة قبل تحويلها إلى MCQ.',tags:['imported-draft'],source:filename});}return out;}
+            window.extractSourceDrafts=async function(){const file=document.getElementById('qb-source-file').files?.[0];if(!file)return Swal.fire('اختر ملفًا','حدد PDF أو DOCX أو TXT أو CSV أو XLSX أولاً.','warning');if(file.size>30*1024*1024)return Swal.fire('الملف كبير','الحد الأقصى 30 MB.','warning');const status=document.getElementById('qb-source-status');status.textContent='جارٍ استخراج النص...';try{const text=await qbExtractFile(file);if(!text.trim())throw Error('لم يتم استخراج نص. قد يكون PDF مصورًا ويحتاج إلى OCR.');qbDrafts=qbMakeDrafts(text,document.getElementById('qb-source-category').value.trim(),file.name);if(!qbDrafts.length)throw Error('لم يتم العثور على جمل مناسبة لإنشاء مسودات. يمكنك نسخ النص إلى TXT أو إنشاء السؤال يدويًا.');qbRenderDraftPreview();status.textContent=`استخراج ${text.length.toLocaleString()} حرفًا؛ ${qbDrafts.length} مسودة.`;}catch(err){status.textContent='';Swal.fire('تعذر استخراج الأسئلة',err.message||'تعذر قراءة الملف.','error');}};
+            function qbRenderDraftPreview(){const preview=document.getElementById('qb-source-preview');if(!qbDrafts.length){preview.innerHTML='<div class="alert alert-info">لا توجد مسودات متبقية.</div>';return;}preview.innerHTML=`<div class="alert alert-success">${qbDrafts.length} مسودة متبقية — راجع النص والإجابة قبل إضافتها.</div><div class="d-flex gap-2 mb-3 flex-wrap"><button class="btn btn-success" onclick="addAllSourceDrafts()">إضافة كل المسودات</button><button class="btn btn-outline-secondary" onclick="exportSourceDrafts()">تصدير JSON</button></div>`+qbDrafts.map((q,i)=>`<div class="border rounded p-3 mb-2"><div class="small text-muted mb-1">مسودة ${i+1} · ${qbEscape(q.source)}</div><label class="form-label small">السؤال</label><textarea class="form-control mb-2" id="qbd-q-${i}" rows="2">${qbEscape(q.q)}</textarea><label class="form-label small">الإجابة والشرح / النص المصدر</label><textarea class="form-control mb-2" id="qbd-a-${i}" rows="3">${qbEscape(q.a)}</textarea><div class="d-flex gap-2"><button class="btn btn-sm btn-primary" onclick="addSourceDraft(${i})">مراجعة وإضافة</button><button class="btn btn-sm btn-outline-danger" onclick="removeSourceDraft(${i})">تجاهل</button></div></div>`).join('');}
+            window.addSourceDraft=function(i){const d=qbDrafts[i];if(!d)return;d.q=document.getElementById('qbd-q-'+i)?.value.trim()||d.q;d.a=document.getElementById('qbd-a-'+i)?.value.trim()||d.a;const obj=qbNormalize(d);if(!obj)return;questionBank.push(obj);questionProgress[obj.id]={attempts:0,correct:0,bookmarked:false,review:true};qbSave();qbDrafts.splice(i,1);renderQuestionBank();document.getElementById('qb-source-status').textContent='أضيف سؤال إلى البنك.';qbRenderDraftPreview();};
+            window.addAllSourceDrafts=function(){if(!qbDrafts.length)return;qbDrafts.forEach((d,i)=>{const q=document.getElementById('qbd-q-'+i)?.value?.trim(),a=document.getElementById('qbd-a-'+i)?.value?.trim();if(q)d.q=q;if(a)d.a=a;const obj=qbNormalize(d);if(obj){questionBank.push(obj);questionProgress[obj.id]={attempts:0,correct:0,bookmarked:false,review:true};}});const n=qbDrafts.length;qbDrafts=[];qbSave();renderQuestionBank();document.getElementById('qb-source-status').textContent=`أضيفت ${n} مسودة إلى البنك.`;qbRenderDraftPreview();};
+            window.removeSourceDraft=function(i){qbDrafts.splice(i,1);qbRenderDraftPreview();};
+            window.exportSourceDrafts=function(){const blob=new Blob([JSON.stringify({app:'InternHubSourceDrafts',schemaVersion:1,questions:qbDrafts},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Question_Drafts.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+            qbInit();window.renderQuestionBank();
+
+            // PDF LIBRARY: indexed storage, metadata, safe rendering, multi-file upload and catalog backup.
+            let db; let tempBlob = null; let currentBlobUrl = ""; let currentLibCategory = 'الكل'; let pendingPdfFiles=[]; let editingBookId=null;
+            const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            document.getElementById('uploadModal').addEventListener('hidden.bs.modal',()=>{if(editingBookId===null){pendingPdfFiles=[];tempBlob=null;}document.getElementById('upload-book-form').querySelector('button[type="submit"]').textContent='حفظ بالمكتبة';});
+            const dbReq = indexedDB.open("InternHubLibraryUltimateDB", 3);
+            dbReq.onupgradeneeded = e => { db = e.target.result; if(!db.objectStoreNames.contains("books")) db.createObjectStore("books", { keyPath: "id" }); };
+            dbReq.onsuccess = e => { db = e.target.result; renderLibrary(); };
+            dbReq.onerror = () => { const el=document.getElementById('lib-storage-info'); if(el)el.textContent='تعذر فتح التخزين المحلي. جرّب متصفحًا آخر أو تحقق من المساحة المتاحة.'; };
+            document.getElementById('pdf-upload').addEventListener('change', e => {const files=[...(e.target.files||[])].filter(f=>f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'));if(!files.length){e.target.value='';return Swal.fire('صيغة غير مدعومة','المكتبة تحفظ ملفات PDF فقط.','warning');}pendingPdfFiles=files;tempBlob=files[0];editingBookId=null;document.getElementById('modal-book-title').value=files.length===1?files[0].name.replace(/\.[^/.]+$/,''):files[0].name.replace(/\.[^/.]+$/,'')+' (و '+(files.length-1)+' ملفات)';document.getElementById('modal-book-tags').value='';document.getElementById('modal-book-notes').value='';document.getElementById('upload-book-form').querySelector('button[type="submit"]').textContent=files.length>1?`حفظ ${files.length} مراجع`:'حفظ بالمكتبة';uploadModal.show();});
+            document.getElementById('upload-book-form').addEventListener('submit', e => {e.preventDefault();if(!db)return;const title=document.getElementById('modal-book-title').value.trim(),category=document.getElementById('modal-book-category').value,tags=document.getElementById('modal-book-tags').value.split(',').map(t=>t.trim()).filter(Boolean),notes=document.getElementById('modal-book-notes').value.trim();if(!title)return;const files=pendingPdfFiles.length?pendingPdfFiles:[tempBlob].filter(Boolean);if(editingBookId!==null){const tx=db.transaction('books','readwrite'),store=tx.objectStore('books');store.get(editingBookId).onsuccess=ev=>{const b=ev.target.result;if(!b)return;b.name=title;b.category=category;b.tags=tags;b.notes=notes;b.updatedAt=new Date().toISOString();store.put(b);};tx.oncomplete=()=>{uploadModal.hide();editingBookId=null;renderLibrary();};return;}if(!files.length)return;const tx=db.transaction('books','readwrite'),store=tx.objectStore('books');files.forEach((file,i)=>{const name=files.length===1?title:file.name.replace(/\.[^/.]+$/,'');store.put({id:Date.now()+i,name,category,tags,notes, favorite:false,sizeBytes:file.size,size:(file.size/(1024*1024)).toFixed(1)+' MB',dateAdded:new Date().toLocaleDateString('ar-EG'),createdAt:new Date().toISOString(),mimeType:'application/pdf',blob:file});});tx.oncomplete=()=>{uploadModal.hide();tempBlob=null;pendingPdfFiles=[];document.getElementById('pdf-upload').value='';renderLibrary();Swal.fire({title:'تم الحفظ',text:`تمت إضافة ${files.length} مرجع إلى المكتبة المحلية.`,icon:'success',toast:true,position:'top-end',timer:2200});};tx.onerror=()=>Swal.fire('تعذر الحفظ','قد تكون مساحة المتصفح غير كافية.','error');});
+            window.setLibCategory=function(cat,btn){currentLibCategory=cat;document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderLibrary();};
+            function libEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+            window.renderLibrary=function(){if(!db)return;const tx=db.transaction('books','readonly');tx.objectStore('books').getAll().onsuccess=function(e){const books=e.target.result||[],cont=document.getElementById('library-content'),empty=document.getElementById('lib-empty-state'),search=(document.getElementById('lib-search').value||'').toLowerCase().trim();document.getElementById('cnt-all').textContent=books.length;document.getElementById('cnt-fav').textContent=books.filter(b=>b.favorite).length;document.getElementById('cnt-textbooks').textContent=books.filter(b=>(b.category||'').includes('Textbooks')).length;document.getElementById('cnt-guidelines').textContent=books.filter(b=>(b.category||'').includes('Guidelines')).length;document.getElementById('cnt-algorithms').textContent=books.filter(b=>(b.category||'').includes('Algorithms')).length;document.getElementById('cnt-notes').textContent=books.filter(b=>(b.category||'').includes('Notes')).length;const bytes=books.reduce((n,b)=>n+(b.sizeBytes||b.blob?.size||0),0);document.getElementById('lib-storage-info').textContent=`${books.length} مرجع · حجم الملفات المحفوظة ${bytes>=1024**3?(bytes/1024**3).toFixed(2)+' GB':(bytes/1024**2).toFixed(1)+' MB'} · محفوظة على هذا الجهاز`;cont.innerHTML='';let filtered=books.filter(b=>{const hay=[b.name,b.category,b.notes,b.searchableText,...(b.tags||[])].join(' ').toLowerCase(),cat=currentLibCategory==='الكل'||(currentLibCategory==='المفضلة'?b.favorite===true:b.category===currentLibCategory);return hay.includes(search)&&cat;});const sort=document.getElementById('lib-sort')?.value||'recent';filtered.sort((a,b)=>sort==='name'?(a.name||'').localeCompare(b.name||'','ar'):sort==='size'?((b.sizeBytes||0)-(a.sizeBytes||0)):sort==='oldest'?((a.id||0)-(b.id||0)):((b.id||0)-(a.id||0)));if(!filtered.length){cont.appendChild(empty);empty.style.display='block';return;}empty.style.display='none';filtered.forEach(b=>{const card=document.createElement('div');card.className='card lib-card p-3 shadow-sm mb-2';const tags=(b.tags||[]).map(t=>`<span class="badge bg-secondary me-1">#${libEsc(t)}</span>`).join('');card.innerHTML=`<div class="d-flex flex-wrap gap-3 align-items-center"><button class="btn btn-link p-0 text-danger" onclick="openBookPro(${Number(b.id)})" aria-label="فتح المرجع"><i class="fas fa-file-pdf fa-2x"></i></button><div class="flex-grow-1" style="min-width:150px;cursor:pointer" onclick="openBookPro(${Number(b.id)})"><h6 class="mb-1 fw-bold">${libEsc(b.name)}</h6><div class="mb-1">${tags}</div><small class="text-muted">${libEsc(b.category||'غير مصنف')} · ${libEsc(b.size||((b.blob?.size||0)/1048576).toFixed(1)+' MB')} · ${libEsc(b.dateAdded||'')}</small>${b.notes?`<div class="small text-muted mt-1">${libEsc(b.notes)}</div>`:''}</div><div class="d-flex gap-1 flex-wrap"><button class="btn btn-sm ${b.favorite?'btn-warning':'btn-outline-secondary'}" onclick="toggleFavPro(${Number(b.id)},event)" title="المفضلة">★</button><button class="btn btn-sm btn-outline-primary" onclick="editBookPro(${Number(b.id)},event)" title="تعديل البيانات">✎</button><button class="btn btn-sm btn-outline-info" onclick="indexBookPro(${Number(b.id)},event)" title="فهرسة نص PDF للبحث"><i class="fas fa-magnifying-glass-plus"></i></button><button class="btn btn-sm btn-outline-success" onclick="downloadBookPro(${Number(b.id)},event)" title="تنزيل الملف"><i class="fas fa-download"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteBookPro(${Number(b.id)},event)" title="حذف"><i class="fas fa-trash"></i></button></div></div>`;cont.appendChild(card);});};};
+            window.toggleFavPro=function(id,e){e?.stopPropagation();const tx=db.transaction('books','readwrite'),store=tx.objectStore('books');store.get(id).onsuccess=ev=>{const b=ev.target.result;if(b){b.favorite=!b.favorite;store.put(b);}};tx.oncomplete=renderLibrary;};
+            window.editBookPro=function(id,e){e?.stopPropagation();const tx=db.transaction('books','readonly');tx.objectStore('books').get(id).onsuccess=ev=>{const b=ev.target.result;if(!b)return;editingBookId=id;pendingPdfFiles=[];tempBlob=null;document.getElementById('modal-book-title').value=b.name||'';document.getElementById('modal-book-category').value=b.category||'كتب طبية (Textbooks)';document.getElementById('modal-book-tags').value=(b.tags||[]).join(', ');document.getElementById('modal-book-notes').value=b.notes||'';document.getElementById('upload-book-form').querySelector('button[type="submit"]').textContent='حفظ التعديلات';uploadModal.show();};};
+            window.downloadBookPro=function(id,e){e?.stopPropagation();const tx=db.transaction('books','readonly');tx.objectStore('books').get(id).onsuccess=ev=>{const b=ev.target.result;if(!b?.blob)return;const url=URL.createObjectURL(b.blob),a=document.createElement('a');a.href=url;a.download=(b.name||'reference')+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);};};
+            window.deleteBookPro=async function(id,e){e?.stopPropagation();const r=await Swal.fire({title:'حذف المرجع؟',text:'سيُحذف الملف المحفوظ من هذا الجهاز.',icon:'warning',showCancelButton:true,confirmButtonText:'حذف',cancelButtonText:'إلغاء',confirmButtonColor:'#dc3545'});if(!r.isConfirmed)return;const tx=db.transaction('books','readwrite');tx.objectStore('books').delete(id);tx.oncomplete=renderLibrary;};
+            window.indexBookPro=async function(id,e){e?.stopPropagation();if(!window.pdfjsLib)return Swal.fire('غير متاح','تعذر تحميل قارئ PDF. تحقق من اتصال الإنترنت.','warning');const tx=db.transaction('books','readonly');tx.objectStore('books').get(id).onsuccess=async ev=>{const b=ev.target.result;if(!b?.blob)return;try{Swal.fire({title:'فهرسة الملف',text:'جارٍ استخراج النص للبحث داخل المرجع…',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:await b.blob.arrayBuffer()}).promise;let chunks=[];for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i),content=await page.getTextContent();chunks.push(content.items.map(x=>x.str).join(' '));}b.searchableText=chunks.join(' ').slice(0,1500000);b.indexedAt=new Date().toISOString();const wtx=db.transaction('books','readwrite');wtx.objectStore('books').put(b);wtx.oncomplete=()=>{Swal.fire('اكتملت الفهرسة',`تم استخراج النص من ${pdf.numPages} صفحة. يمكنك الآن البحث في محتوى المرجع النصي.`, 'success');renderLibrary();};}catch(err){Swal.fire('تعذر فهرسة الملف','قد يكون الملف مصورًا ويحتاج إلى OCR، أو محميًا بكلمة مرور.','error');}};};
+            window.exportLibraryBackup=async function(){if(!db)return;if(!window.JSZip)return Swal.fire('غير متاح','مكتبة ضغط الملفات غير متاحة. تحقق من اتصال الإنترنت.','warning');const tx=db.transaction('books','readonly');tx.objectStore('books').getAll().onsuccess=async e=>{try{const books=e.target.result||[],zip=new JSZip(),manifest={app:'InternHubLibraryBackup',schemaVersion:1,exportedAt:new Date().toISOString(),books:[]};for(let i=0;i<books.length;i++){const b=books[i],filename=`pdf/${String(i+1).padStart(4,'0')}_${(b.name||'reference').replace(/[\/:*?"<>|]/g,'_').slice(0,80)}.pdf`;manifest.books.push({id:b.id,name:b.name,category:b.category,tags:b.tags||[],notes:b.notes||'',favorite:!!b.favorite,sizeBytes:b.sizeBytes||b.blob?.size||0,size:b.size,dateAdded:b.dateAdded,createdAt:b.createdAt,searchableText:b.searchableText||'',file:filename});if(b.blob)zip.file(filename,b.blob);}zip.file('manifest.json',JSON.stringify(manifest,null,2));const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='InternHub_Library_Backup_'+new Date().toISOString().slice(0,10)+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);}catch(err){Swal.fire('تعذر التصدير','قد تكون المكتبة كبيرة جدًا أو لا تتوفر مساحة كافية.','error');}};};
+            window.importLibraryBackup=async function(e){const file=e.target.files?.[0];if(!file)return;try{if(!window.JSZip)throw Error('مكتبة ZIP غير متاحة. تحقق من اتصال الإنترنت.');if(file.size>1024*1024*1024)throw Error('حجم النسخة يتجاوز 1 GB.');const zip=await JSZip.loadAsync(file),mf=zip.file('manifest.json');if(!mf)throw Error('النسخة لا تحتوي على manifest.json.');const manifest=JSON.parse(await mf.async('text'));if(manifest.app!=='InternHubLibraryBackup'||!Array.isArray(manifest.books))throw Error('ملف النسخة غير صالح.');const r=await Swal.fire({title:'استعادة مكتبة PDF',text:`سيتم استيراد ${manifest.books.length} مرجع. ستُدمج المراجع مع المكتبة الحالية.`,icon:'warning',showCancelButton:true,confirmButtonText:'استعادة ودمج',cancelButtonText:'إلغاء'});if(!r.isConfirmed)return;const restored=[];for(const b of manifest.books){const zf=b.file?zip.file(b.file):null;if(!zf)continue;const blob=await zf.async('blob');restored.push({...b,id:Date.now()+Math.floor(Math.random()*1000000),blob,sizeBytes:blob.size,size:(blob.size/1048576).toFixed(1)+' MB',mimeType:'application/pdf',restoredAt:new Date().toISOString()});}const tx=db.transaction('books','readwrite'),store=tx.objectStore('books');restored.forEach(b=>store.put(b));tx.oncomplete=()=>{renderLibrary();Swal.fire('اكتملت الاستعادة',`تم استيراد ${restored.length} ملف PDF وبياناته.`,'success');};tx.onerror=()=>Swal.fire('تعذر الاستعادة','قد تكون مساحة التخزين غير كافية.','error');}catch(err){Swal.fire('تعذر الاستعادة',err.message||'ملف نسخة غير صالح.','error');}finally{e.target.value='';}};
+            window.exportLibraryManifest=function(){if(!db)return;const tx=db.transaction('books','readonly');tx.objectStore('books').getAll().onsuccess=e=>{const books=e.target.result||[],manifest={app:'InternHubLibrary',schemaVersion:1,exportedAt:new Date().toISOString(),warning:'هذا الفهرس يحفظ بيانات المراجع فقط ولا يتضمن ملفات PDF نفسها.',books:books.map(b=>({id:b.id,name:b.name,category:b.category,tags:b.tags||[],notes:b.notes||'',favorite:!!b.favorite,sizeBytes:b.sizeBytes||b.blob?.size||0,dateAdded:b.dateAdded,createdAt:b.createdAt}))},blob=new Blob([JSON.stringify(manifest,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='InternHub_Library_Catalog.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};};
+            window.openBookPro=function(id){const tx=db.transaction('books','readonly');tx.objectStore('books').get(id).onsuccess=e=>{const b=e.target.result;if(b?.blob){if(currentBlobUrl)URL.revokeObjectURL(currentBlobUrl);openPdf(URL.createObjectURL(b.blob),b.name);}};};
+            window.openPdf=function(url,title){document.getElementById('library-dashboard').style.display='none';document.getElementById('pdf-viewer-wrapper').style.display='flex';document.getElementById('current-pdf-title').textContent=title;currentBlobUrl=url;const mob=/Android|iPhone|iPad/i.test(navigator.userAgent);document.getElementById('viewer-container').innerHTML=mob?'<button class="btn btn-info fw-bold btn-lg mt-3" onclick="openPdfNative()"><i class="fas fa-book-open"></i> فتح المرجع</button>':'<embed id="active-pdf-embed" type="application/pdf" width="100%" height="100%">';const embed=document.getElementById('active-pdf-embed');if(embed)embed.src=url;};
+            window.closePdf=function(){document.getElementById('pdf-viewer-wrapper').style.display='none';document.getElementById('library-dashboard').style.display='flex';document.getElementById('viewer-container').innerHTML='';if(currentBlobUrl)URL.revokeObjectURL(currentBlobUrl);currentBlobUrl='';};window.openPdfNative=function(){if(currentBlobUrl)window.open(currentBlobUrl,'_blank','noopener');};
+
+            window.calcShock = function() { const hr = parseFloat(document.getElementById('shock-hr').value); const sbp = parseFloat(document.getElementById('shock-sbp').value); if(hr>0 && sbp>0) { let si = (hr / sbp).toFixed(2); document.getElementById('si-res').innerText = si; document.getElementById('si-class').innerText = si>0.9?"⚠️ خطر صدمة!":"طبيعي"; } }
+            window.generateSOAPText = function() { copyToClipboard(`SOAP: ${document.getElementById('soap-patient').value}\nS:${document.getElementById('soap-s').value}`); }
+            window.exportSOAPPDF = function() { html2pdf().from(document.getElementById('soap-container')).save('SOAP.pdf'); }
+
+            let tasks = JSON.parse(localStorage.getItem('internTasks')) || []; tasks = tasks.map((t,i)=>({...t,id:t.id||('legacy-'+i+'-'+Date.now())})); let notes = JSON.parse(localStorage.getItem('internNotes')) || []; let cases = JSON.parse(localStorage.getItem('internCases')) || []; let shifts = JSON.parse(localStorage.getItem('internShifts')) || {};
+            function saveData() { localStorage.setItem('internTasks', JSON.stringify(tasks)); localStorage.setItem('internNotes', JSON.stringify(notes)); localStorage.setItem('internCases', JSON.stringify(cases)); localStorage.setItem('internShifts', JSON.stringify(shifts)); updateDashboardStats(); }
+            function updateDashboardStats() { document.getElementById('dash-tasks-count').innerText = tasks.filter(t=>!t.completed).length; document.getElementById('dash-notes-count').innerText = notes.length; }
+            
+            window.renderTasks = function() {
+                const list = document.getElementById('tasks-list'); if (!list) return; list.innerHTML = '';
+                tasks.forEach((t, i) => {
+                    const alarmText = t.alarmAt && !t.completed ? `تذكير: ${new Date(t.alarmAt).toLocaleString()}` : (t.completed ? 'مكتملة' : 'بدون تذكير');
+                    list.innerHTML += `<div class="list-group-item task-item rounded mb-2 ${t.completed ? 'completed' : ''}"><div><input aria-label="إنجاز المهمة" class="form-check-input me-3 mt-0" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${i})"> <span>${escapeHTML(t.text)}</span><small class="task-meta">${escapeHTML(alarmText)}</small></div><button aria-label="حذف المهمة" class="btn btn-sm btn-light text-danger border" onclick="deleteTask(${i})"><i class="fas fa-trash"></i></button></div>`;
+                    if (!t.completed && t.alarmAt) scheduleTaskAlarm(t);
+                });
+            };
+            document.getElementById('task-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); const text = document.getElementById('task-input').value.trim(); if (!text) return;
+                const mins = Number(document.getElementById('task-timer').value || 0);
+                let alarmAt = mins ? Date.now() + mins * 60000 : null;
+                if (mins && 'Notification' in window && Notification.permission === 'default') await requestNotificationPermission();
+                const task = { id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()), text, completed:false, createdAt:Date.now(), alarmAt };
+                tasks.push(task); document.getElementById('task-input').value = ''; saveData(); renderTasks();
+                if (mins && !('Notification' in window)) Swal.fire('تم حفظ المهمة','التنبيه يعمل فقط ما دامت الصفحة مفتوحة.','info');
+            }); 
+            window.toggleTask = function(i) { tasks[i].completed = !tasks[i].completed; if(tasks[i].completed && taskAlarmTimers.has(tasks[i].id)){ clearTimeout(taskAlarmTimers.get(tasks[i].id)); taskAlarmTimers.delete(tasks[i].id); } saveData(); renderTasks(); }; window.deleteTask = function(i) { if(taskAlarmTimers.has(tasks[i]?.id)){ clearTimeout(taskAlarmTimers.get(tasks[i].id)); taskAlarmTimers.delete(tasks[i].id); } tasks.splice(i, 1); saveData(); renderTasks(); }
+            
+            window.renderNotes = function() { const list = document.getElementById('notes-list'); list.innerHTML = ''; notes.forEach((n, i) => { list.innerHTML += `<div class="col-md-6 mb-3"><div class="card h-100 shadow-sm"><div class="card-body"><h6 class="fw-bold text-primary d-flex justify-content-between">${escapeHTML(n.title)} <span class="badge bg-secondary">${escapeHTML(n.dept)}</span></h6><p class="small" style="white-space: pre-wrap;">${escapeHTML(n.content)}</p><button class="btn btn-sm btn-outline-danger w-100 mt-2" onclick="deleteNote(${i})"><i class="fas fa-trash"></i></button></div></div></div>`; }); }
+            document.getElementById('note-form').addEventListener('submit', (e) => { e.preventDefault(); notes.push({ dept: document.getElementById('note-dept').value, title: document.getElementById('note-title').value, content: document.getElementById('note-content').value }); document.getElementById('note-form').reset(); saveData(); renderNotes(); }); window.deleteNote = function(i) { notes.splice(i, 1); saveData(); renderNotes(); }
+            
+            window.renderCases = function() { const list = document.getElementById('cases-list'); list.innerHTML = ''; cases.forEach((c, i) => { list.innerHTML += `<div class="col-md-6 mb-3"><div class="card h-100 shadow-sm border-start border-4 border-warning"><div class="card-body"><h5 class="fw-bold text-warning mb-2">${escapeHTML(c.diagnosis)}</h5><p class="small mb-2"><strong>التخصص:</strong> ${escapeHTML(c.dept)} | <strong>المريض:</strong> ${escapeHTML(c.demographics)}</p><p class="small bg-light p-2 rounded text-dark" style="white-space: pre-wrap;">${escapeHTML(c.learning)}</p><button class="btn btn-sm btn-light text-danger w-100 border" onclick="deleteCase(${i})"><i class="fas fa-trash"></i></button></div></div></div>`; }); }
+            document.getElementById('case-form').addEventListener('submit', (e) => { e.preventDefault(); cases.push({ diagnosis: document.getElementById('case-diagnosis').value, dept: document.getElementById('case-dept').value, demographics: document.getElementById('case-demographics').value, learning: document.getElementById('case-learning').value }); document.getElementById('case-form').reset(); saveData(); renderCases(); }); window.deleteCase = function(i) { cases.splice(i, 1); saveData(); renderCases(); }
+
+            window.generateShiftReport = function() {
+                document.getElementById('rep-date').innerText = new Date().toLocaleString('ar-EG');
+                const tList = document.getElementById('rep-tasks'); tList.innerHTML = '';
+                tasks.filter(t=>t.completed).forEach(t => { tList.innerHTML += `<li>${t.text}</li>`; });
+                if(tList.innerHTML==='') tList.innerHTML='<li>لا توجد مهام منجزة</li>';
+                const cList = document.getElementById('rep-cases'); cList.innerHTML = '';
+                cases.forEach(c => { cList.innerHTML += `<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;"><b>${c.diagnosis}</b> (${c.dept})<br>${c.learning}</div>`; });
+                const nList = document.getElementById('rep-notes'); nList.innerHTML = '';
+                notes.forEach(n => { nList.innerHTML += `<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;"><b>${n.title}</b><br>${n.content}</div>`; });
+                const el = document.getElementById('shift-report'); el.style.display = 'block';
+                html2pdf().set({ margin: 15, filename: 'Shift_Report.pdf' }).from(el).save().then(()=>{ el.style.display = 'none'; });
+            }
+
+            // Analytics Chart
+            let myChart = null;
+            window.renderAnalyticsChart = function() {
+                document.getElementById('stat-total-cases').innerText = cases.length;
+                document.getElementById('stat-total-notes').innerText = notes.length;
+                document.getElementById('stat-total-tasks').innerText = tasks.filter(t=>!t.completed).length;
+                const deptCounts = {}; cases.forEach(c => { let d = c.dept || 'أخرى'; deptCounts[d] = (deptCounts[d] || 0) + 1; });
+                const ctx = document.getElementById('casesChart').getContext('2d');
+                if(myChart) myChart.destroy();
+                myChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(deptCounts).length ? Object.keys(deptCounts) : ['لا توجد حالات'], datasets: [{ data: Object.values(deptCounts).length ? Object.values(deptCounts) : [1], backgroundColor: ['#2563eb', '#059669', '#d97706', '#dc2626', '#0284c7'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+            }
+
+            window.renderCalendar = function() { const cal = document.getElementById('calendar-grid'); if(!cal)return; cal.innerHTML = ''; const today = new Date(); const m = today.getMonth(); const y = today.getFullYear(); const daysInMonth = new Date(y, m + 1, 0).getDate(); ['أح', 'إث', 'ثلا', 'أر', 'خم', 'جم', 'سب'].forEach(d => { cal.innerHTML += `<div class="cal-header">${d}</div>`; }); let firstDay = new Date(y, m, 1).getDay(); for(let i=0; i<firstDay; i++) cal.innerHTML += `<div></div>`; for(let i=1; i<=daysInMonth; i++) { let dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; let cls = "cal-day"; if(shifts[dateStr]) cls += ` shift-${shifts[dateStr]}`; if(i === today.getDate()) cls += " border-primary border-2 fw-bold"; cal.innerHTML += `<div class="${cls}" onclick="deleteShift('${dateStr}')">${i}</div>`; } }
+            window.addShift = function() { const d = document.getElementById('shift-date').value; const t = document.getElementById('shift-type').value; if(d) { shifts[d] = t; saveData(); renderCalendar(); } }
+            window.deleteShift = function(dateStr) { if(shifts[dateStr]) { Swal.fire({title:'مسح النبطشية؟', showCancelButton:true, confirmButtonText:'نعم'}).then(r=>{ if(r.isConfirmed){ delete shifts[dateStr]; saveData(); renderCalendar(); } }); } }
+
+            // Settings & Export/Import
+            window.exportData = function() { const payload = { app:'Intern Hub', schemaVersion:2, exportedAt:new Date().toISOString(), tasks, notes, cases, shifts, preferences:{theme:localStorage.getItem('theme')||'light', language:localStorage.getItem('internHubLang')||'ar'} }; const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const dl=document.createElement('a'); dl.href=url; dl.download='InternHub_Backup_'+new Date().toISOString().slice(0,10)+'.json'; document.body.appendChild(dl); dl.click(); dl.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
+            window.importData = function(e) { const f=e.target.files?.[0]; if(!f)return; if(f.size>10*1024*1024){Swal.fire('الملف كبير جداً','اختر نسخة احتياطية أقل من 10 MB.','error');e.target.value='';return;} const r=new FileReader(); r.onload = async ev => { try { const data=JSON.parse(ev.target.result); if(!data || !Array.isArray(data.tasks)||!Array.isArray(data.notes)||!Array.isArray(data.cases)||typeof data.shifts!=='object') throw new Error('invalid'); const confirm=await Swal.fire({title:'استبدال البيانات الحالية؟',text:'سيتم استبدال المهام والمذكرات والحالات والنبطشيات بالنسخة المختارة.',icon:'warning',showCancelButton:true,confirmButtonText:'استبدال',cancelButtonText:'إلغاء'}); if(!confirm.isConfirmed)return; tasks=data.tasks; notes=data.notes; cases=data.cases; shifts=data.shifts||{}; saveData(); renderTasks(); renderNotes(); renderCases(); renderCalendar(); Swal.fire('تم الاسترجاع','تم تحميل البيانات المحلية.','success'); } catch(err){ Swal.fire('تعذر الاسترجاع','الملف غير صالح أو ليس نسخة احتياطية متوافقة من Intern Hub.','error'); } finally { e.target.value=''; } }; r.readAsText(f); }
+            window.clearAllData = function() { Swal.fire({ title: 'تأكيد المسح؟', icon: 'warning', showCancelButton: true }).then((r) => { if(r.isConfirmed) { tasks=[]; notes=[]; cases=[]; shifts={}; saveData(); renderTasks(); renderNotes(); renderCases(); renderCalendar(); Swal.fire('تم', '', 'success'); } }); }
+
+            // AI
+            let apiKey = localStorage.getItem('geminiApiKey');
+            window.checkApiKey = function() { if(apiKey) { document.getElementById('api-key-setup').style.display='none'; document.getElementById('chat-interface').style.setProperty('display','flex','important'); } else { document.getElementById('api-key-setup').style.display='block'; document.getElementById('chat-interface').style.setProperty('display','none','important'); } }
+            window.saveApiKey = function() { apiKey = document.getElementById('gemini-api-key').value.trim(); if(apiKey){ localStorage.setItem('geminiApiKey', apiKey); checkApiKey(); } }
+            window.resetApiKey = function() { localStorage.removeItem('geminiApiKey'); apiKey=null; checkApiKey(); }
+            document.getElementById('chat-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
+                const chatBox = document.getElementById('chat-box'); chatBox.innerHTML += `<div class="chat-msg msg-user shadow-sm">${escapeHTML(msg)}</div>`; input.value = '';
+                const loadId = 'l'+Date.now(); chatBox.innerHTML += `<div id="${loadId}" class="chat-msg msg-ai text-muted"><i class="fas fa-spinner fa-spin"></i> أبحث...</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+                try {
+                    const res = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(res, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: "أجب باختصار كطبيب." }]} }) });
+                    document.getElementById(loadId).remove(); if(!response.ok) throw new Error();
+                    const data = await response.json();
+                    let html = escapeHTML(data.candidates?.[0]?.content?.parts?.[0]?.text || 'لم يصل رد قابل للعرض.').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                    chatBox.innerHTML += `<div class="chat-msg msg-ai shadow-sm">${html}</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+                } catch(err) { document.getElementById(loadId).remove(); chatBox.innerHTML += `<div class="chat-msg msg-ai text-danger">خطأ في الاتصال</div>`; }
+            });
+
+            // Init
+            const savedLang = localStorage.getItem('internHubLang') || 'ar';
+            document.getElementById('top-lang-selector').value = savedLang;
+            switchLanguage(savedLang);
+
+            checkAuthStatus();
+            renderTasks(); renderNotes(); renderCases(); showSection('dashboard');
+        } catch (e) { alert("خطأ في التحميل!"); console.error(e); }
+    </script>
+</body>
+</html>
