@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Intern Hub - Complete Master V18 (Library Ultimate Pro)</title>
+    <!-- Bootstrap RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- QRCode Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0d6efd; --secondary: #6c757d; --success: #198754; 
+            --danger: #dc3545; --warning: #ffc107; --info: #0dcaf0; --purple: #6f42c1;
+            --ultimate-teal: #0f766e;
+            --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #212529; 
+            --text-muted: #6c757d; --border-color: #dee2e6;
+            --sidebar-bg: #0f172a; --sidebar-text: #f8fafc; --sidebar-hover: #1e293b;
+            --bottom-nav-bg: #ffffff; --cpr-bg: #ffebee;
+        }
+        [data-theme="dark"] {
+            --primary: #3b82f6; --bg-body: #050811; --bg-card: #111827; 
+            --text-main: #f3f4f6; --text-muted: #9ca3af; --border-color: #374151;
+            --sidebar-bg: #030712; --sidebar-text: #f8fafc; --sidebar-hover: #1f2937;
+            --bottom-nav-bg: #111827; --cpr-bg: #3a1c1d;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; overflow-x: hidden; padding-bottom: 75px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-control, .form-select { background-color: var(--bg-body); color: var(--text-main); border-color: var(--border-color); }
+        .form-control:focus, .form-select:focus { background-color: var(--bg-card); color: var(--text-main); border-color: var(--primary); box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+        .list-group-item { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
+        
+        /* Sidebar */
+        .sidebar { height: 100vh; background-color: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; right: 0; top: 0; width: 260px; padding-top: 20px; z-index: 1000; overflow-y: auto; }
+        .sidebar h4 { font-weight: 800; margin-bottom: 15px; text-align: center; color: #fff;}
+        .sidebar-badge { font-size: 0.7rem; background: var(--ultimate-teal); color: #fff; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; display: inline-block; }
+        .sidebar a { color: var(--sidebar-text); text-decoration: none; padding: 9px 18px; display: block; font-size: 13px; border-right: 4px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background-color: var(--sidebar-hover); border-right: 4px solid var(--primary); color: #fff; }
+        
+        /* Main Content */
+        .main-content { margin-right: 260px; padding: 25px; min-height: 100vh; }
+        .content-section { display: none; animation: fadeIn 0.3s ease; }
+        .content-section.active { display: block; }
+        .content-section.flex-active { display: flex; flex-direction: column; height: 85vh; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .stat-card { padding: 20px; text-align: center; border-radius: 12px; color: white; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .stat-card:hover { transform: translateY(-5px); }
+        .bg-gradient-primary { background: linear-gradient(135deg, #0d6efd, #00d2ff); }
+        .bg-gradient-success { background: linear-gradient(135deg, #198754, #20c997); }
+        .bg-gradient-teal { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+        
+        /* Bottom Nav */
+        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bottom-nav-bg); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; justify-content: space-around; padding: 8px 0; border-top: 1px solid var(--border-color); }
+        .bottom-nav a { color: var(--text-muted); text-align: center; text-decoration: none; font-size: 11px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .bottom-nav a i { font-size: 18px; }
+        .bottom-nav a.active { color: var(--primary); font-weight: bold; }
+        
+        /* Mobile Menu */
+        #mobile-menu-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 65px; background: rgba(0,0,0,0.5); z-index: 998; }
+        #mobile-menu { position: fixed; bottom: -100%; left: 0; right: 0; background: var(--bg-card); border-radius: 20px 20px 0 0; padding: 20px; z-index: 999; transition: bottom 0.3s; max-height: 85vh; overflow-y: auto; }
+        #mobile-menu.open { bottom: 65px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .menu-btn { background: var(--bg-body); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 12px; text-align: center; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; text-decoration: none; font-size: 11px; font-weight: bold; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-right: 0; padding: 15px; padding-bottom: 80px; } .bottom-nav { display: flex; } }
+
+        .task-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border-color); }
+        .task-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+        .cpr-timer { font-size: 3.5rem; font-weight: bold; font-family: monospace; text-align: center; color: var(--danger); margin: 15px 0; }
+        .cpr-card { background-color: var(--cpr-bg); border: 2px solid var(--danger); }
+        .mic-btn { cursor: pointer; color: var(--primary); transition: 0.2s; }
+        .mic-btn.recording { color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .cal-day { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); cursor: pointer; font-size: 14px; }
+        .cal-header { font-weight: bold; padding: 5px; color: var(--text-muted); }
+        .shift-morning { background-color: #d1e7dd !important; color: #0f5132 !important;}
+        .shift-night { background-color: #cff4fc !important; color: #055160 !important;}
+        .shift-off { background-color: #f8d7da !important; color: #842029 !important;}
+
+        #pdf-viewer-wrapper { display: none; flex-direction: column; height: 100%; border-radius: 10px; overflow: hidden; background: #525659; }
+        .score-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        
+        .chat-container { display: flex; flex-direction: column; height: 60vh; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; }
+        .chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 15px; position: relative; clear: both; white-space: pre-wrap; }
+        .msg-user { background-color: var(--primary); color: #fff; align-self: flex-start; border-top-right-radius: 0; }
+        .msg-ai { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); align-self: flex-end; border-top-left-radius: 0; }
+
+        @media print { body { background: white; color: black; } .sidebar, .bottom-nav, .btn, #mobile-menu-overlay, #mobile-menu { display: none !important; } .main-content { margin: 0; padding: 0; } .card { border: none; box-shadow: none; } }
+        .shift-report-container { padding: 20px; background: white; color: black; font-family: sans-serif; display: none; }
+        .fav-star { color: #ffc107; cursor: pointer; }
+
+        /* Library Ultimate Pro Styles */
+        .lib-card { transition: 0.2s; border-right: 4px solid var(--primary); }
+        .lib-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+        .filter-tab { border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-muted); padding: 6px 16px; font-size: 13px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .filter-tab.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar (Desktop) -->
+    <div class="sidebar">
+        <div class="text-center">
+            <h4><i class="fas fa-user-md text-primary me-2"></i> Intern Hub</h4>
+            <div class="sidebar-badge"><i class="fas fa-book-reader"></i> Master V18 Ultimate</div>
+        </div>
+        <div class="px-3 mb-2"><button class="btn btn-outline-light w-100 btn-sm" onclick="toggleDarkMode()"><i class="fas fa-moon me-1"></i> الرؤية الليلية</button></div>
+        
+        <p class="text-muted small fw-bold ms-3 mt-2 mb-1">الرئيسية والمهام</p>
+        <a href="#" onclick="showSection('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-home fa-fw ms-2"></i> الرئيسية</a>
+        <a href="#" onclick="showSection('tasks')" id="nav-tasks"><i class="fas fa-check-square fa-fw ms-2"></i> المهام والمنبهات</a>
+        <a href="#" onclick="showSection('notes')" id="nav-notes"><i class="fas fa-microphone fa-fw text-success ms-2"></i> المذكرات الصوتية</a>
+        <a href="#" onclick="showSection('sbar')" id="nav-sbar"><i class="fas fa-exchange-alt fa-fw text-warning ms-2"></i> تسليم الحالات (QR/SBAR)</a>
+        <a href="#" onclick="showSection('cases')" id="nav-cases"><i class="fas fa-file-medical-alt fa-fw ms-2"></i> سجل الحالات</a>
+        
+        <p class="text-muted small fw-bold ms-3 mt-2 mb-1">المكتبة الذكية (Ultimate Pro)</p>
+        <a href="#" onclick="showSection('library')" id="nav-library" class="border-start border-3 border-danger"><i class="fas fa-file-pdf fa-fw text-danger ms-2"></i> المكتبة الطبية الاحترافية ⭐️</a>
+        
+        <p class="text-muted small fw-bold ms-3 mt-2 mb-1">الإحصائيات والمحاكي</p>
+        <a href="#" onclick="showSection('analytics')" id="nav-analytics"><i class="fas fa-chart-pie fa-fw text-success ms-2"></i> إحصائيات الامتياز</a>
+        <a href="#" onclick="showSection('simulator')" id="nav-simulator"><i class="fas fa-stethoscope fa-fw text-info ms-2"></i> محاكي الطوارئ</a>
+        
+        <p class="text-muted small fw-bold ms-3 mt-2 mb-1">الأدوات الطبية والحاسبات</p>
+        <a href="#" onclick="showSection('flashcards')" id="nav-flashcards"><i class="fas fa-graduation-cap fa-fw text-info ms-2"></i> بنك الأسئلة (Flashcards)</a>
+        <a href="#" onclick="showSection('interactions')" id="nav-interactions"><i class="fas fa-ban fa-fw text-danger ms-2"></i> التداخلات الدوائية</a>
+        <a href="#" onclick="showSection('shock')" id="nav-shock"><i class="fas fa-heart-pulse fa-fw text-danger ms-2"></i> مؤشر الصدمة (Shock Index)</a>
+        <a href="#" onclick="showSection('soap')" id="nav-soap"><i class="fas fa-file-signature fa-fw text-primary ms-2"></i> قوالب SOAP الطبية</a>
+        <a href="#" onclick="showSection('pedsfluids')" id="nav-pedsfluids"><i class="fas fa-baby fa-fw text-info ms-2"></i> سوائل الأطفال (Holliday)</a>
+        <a href="#" onclick="showSection('abx')" id="nav-abx"><i class="fas fa-capsules fa-fw text-success ms-2"></i> المضادات وجرعات الكلى</a>
+        <a href="#" onclick="showSection('electrolytes')" id="nav-electrolytes"><i class="fas fa-vial fa-fw text-info ms-2"></i> تصحيح الأملاح</a>
+        <a href="#" onclick="showSection('procedures')" id="nav-procedures"><i class="fas fa-hands-helping fa-fw text-primary ms-2"></i> خطوات الإجراءات</a>
+        <a href="#" onclick="showSection('cpr')" id="nav-cpr"><i class="fas fa-heartbeat fa-fw text-danger ms-2"></i> إنعاش القلب (CPR)</a>
+        <a href="#" onclick="showSection('drugs')" id="nav-drugs"><i class="fas fa-pills fa-fw text-primary ms-2"></i> جرعات الأطفال الطارئة</a>
+        <a href="#" onclick="showSection('calculators')" id="nav-calculators"><i class="fas fa-calculator fa-fw text-info ms-2"></i> الحاسبات و ABG</a>
+        <a href="#" onclick="showSection('scores')" id="nav-scores"><i class="fas fa-clipboard-list fa-fw text-warning ms-2"></i> التقييمات السريرية</a>
+        <a href="#" onclick="showSection('ecg')" id="nav-ecg"><i class="fas fa-wave-square fa-fw text-danger ms-2"></i> دليل رسم القلب</a>
+        
+        <p class="text-muted small fw-bold ms-3 mt-2 mb-1">الذكاء الاصطناعي والإعدادات</p>
+        <a href="#" onclick="showSection('ai')" id="nav-ai"><i class="fas fa-robot fa-fw" style="color:var(--purple);"></i> المساعد الذكي (AI)</a>
+        <a href="#" onclick="showSection('settings')" id="nav-settings"><i class="fas fa-cog fa-fw ms-2"></i> الإعدادات والجداول</a>
+    </div>
+
+    <!-- Bottom Nav (Mobile) -->
+    <div class="bottom-nav" id="bottom-nav">
+        <a href="#" onclick="showSection('dashboard')" class="nav-item-mob active" id="mob-dashboard"><i class="fas fa-home"></i>الرئيسية</a>
+        <a href="#" onclick="showSection('library')" class="nav-item-mob" id="mob-library"><i class="fas fa-file-pdf text-danger"></i>المكتبة</a>
+        <a href="#" onclick="showSection('tasks')" class="nav-item-mob" id="mob-tasks"><i class="fas fa-bell"></i>المهام</a>
+        <a href="#" onclick="showSection('analytics')" class="nav-item-mob" id="mob-analytics"><i class="fas fa-chart-pie text-success"></i>الإحصائيات</a>
+        <a href="#" onclick="toggleMobileMenu()" class="nav-item-mob" id="mob-menu"><i class="fas fa-th-large"></i>المزيد</a>
+    </div>
+
+    <!-- Mobile More Menu -->
+    <div id="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu">
+        <h6 class="fw-bold mb-3 border-bottom pb-2">القائمة الشاملة V18</h6>
+        <div class="menu-grid">
+            <a href="#" onclick="showSection('library'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-file-pdf fa-2x text-danger"></i> المكتبة ⭐️</a>
+            <a href="#" onclick="showSection('analytics'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-chart-pie fa-2x text-success"></i> إحصائيات</a>
+            <a href="#" onclick="showSection('simulator'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-stethoscope fa-2x text-info"></i> محاكي</a>
+            <a href="#" onclick="showSection('flashcards'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-graduation-cap fa-2x text-info"></i> أسئلة</a>
+            <a href="#" onclick="showSection('interactions'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-ban fa-2x text-danger"></i> تداخلات</a>
+            <a href="#" onclick="showSection('soap'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-file-signature fa-2x text-primary"></i> SOAP</a>
+            <a href="#" onclick="showSection('shock'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-heart-pulse fa-2x text-danger"></i> صدمة</a>
+            <a href="#" onclick="showSection('cpr'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-heartbeat fa-2x text-danger"></i> CPR</a>
+            <a href="#" onclick="showSection('ai'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-robot fa-2x" style="color:var(--purple);"></i> AI</a>
+            <a href="#" onclick="toggleDarkMode(); toggleMobileMenu()" class="menu-btn"><i class="fas fa-moon fa-2x text-dark"></i> ليلي</a>
+            <a href="#" onclick="showSection('settings'); toggleMobileMenu()" class="menu-btn"><i class="fas fa-cog fa-2x text-secondary"></i> إعدادات</a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        
+        <!-- 1. Dashboard -->
+        <div id="dashboard" class="content-section active">
+            <div class="d-flex justify-content-between align-items-center mb-4"><h3 class="fw-bold mb-0">مرحباً يا دكتور 👋</h3><span class="badge bg-primary p-2" id="current-date"></span></div>
+            <div class="row">
+                <div class="col-md-4 col-6 mb-3"><div class="stat-card bg-gradient-primary h-100"><i class="fas fa-bell fa-2x mb-2 opacity-75"></i><h6 class="mb-1">مهام اليوم</h6><h2 id="dash-tasks-count" class="fw-bold mb-0">0</h2></div></div>
+                <div class="col-md-4 col-6 mb-3"><div class="stat-card bg-gradient-success h-100"><i class="fas fa-book-medical fa-2x mb-2 opacity-75"></i><h6 class="mb-1">مذكراتك</h6><h2 id="dash-notes-count" class="fw-bold mb-0">0</h2></div></div>
+                <div class="col-md-4 col-12 mb-3"><div class="stat-card bg-gradient-teal h-100 position-relative" style="cursor:pointer;" onclick="showSection('library')"><i class="fas fa-file-pdf fa-2x mb-2 opacity-75"></i><h6 class="mb-1">المكتبة الذكية (Pro)</h6><h5 class="fw-bold mb-0 mt-2"><i class="fas fa-book-reader me-1"></i> تصفح المراجع</h5></div></div>
+            </div>
+            <div class="card p-4 mt-2 border-start border-4 border-danger">
+                <h5 class="fw-bold text-danger"><i class="fas fa-file-pdf me-2"></i> تحديث المكتبة الـ Ultimate Pro (V18)</h5>
+                <p class="mb-0 text-muted small">تم تنظيم المكتبة في تبويبات مرئية (مجلدات) مع عداد تلقائي للمراجع، نظام مفضلة سريع، بحث فوري، وحفظ دائم للملفات في قاعدة بيانات المتصفح.</p>
+            </div>
+        </div>
+
+        <!-- NEW: 2. Ultimate Pro PDF Library (V18) -->
+        <div id="library" class="content-section flex-active">
+            <div id="library-dashboard" class="h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0 fw-bold"><i class="fas fa-book-reader text-danger ms-2"></i> المكتبة الطبية الاحترافية</h3>
+                    <div>
+                        <button class="btn btn-danger fw-bold shadow-sm" onclick="document.getElementById('pdf-upload').click();"><i class="fas fa-cloud-upload-alt me-1"></i> رفع مرجع PDF</button>
+                        <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Search & Folder Category Tabs -->
+                <div class="card p-3 mb-3 border-0 shadow-sm">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="lib-search" class="form-control" placeholder="ابحث باسم المرجع أو التاج..." oninput="renderLibrary()">
+                    </div>
+                    <!-- Category Tabs -->
+                    <div class="d-flex gap-2 overflow-auto pb-1" id="lib-category-tabs">
+                        <button class="filter-tab active" onclick="setLibCategory('الكل', this)">الكل <span class="badge bg-light text-dark ms-1" id="cnt-all">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('المفضلة', this)">المفضلة ⭐️ <span class="badge bg-light text-dark ms-1" id="cnt-fav">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('كتب طبية (Textbooks)', this)">كتب طبية <span class="badge bg-light text-dark ms-1" id="cnt-textbooks">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('إرشادات (Guidelines)', this)">إرشادات Guidelines <span class="badge bg-light text-dark ms-1" id="cnt-guidelines">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('خوارزميات (Algorithms)', this)">خوارزميات <span class="badge bg-light text-dark ms-1" id="cnt-algorithms">0</span></button>
+                        <button class="filter-tab" onclick="setLibCategory('ملازم ومذكرات (Notes)', this)">ملازم شخصية <span class="badge bg-light text-dark ms-1" id="cnt-notes">0</span></button>
+                    </div>
+                </div>
+
+                <!-- Library List Container -->
+                <div id="library-content" class="overflow-auto pb-4 flex-grow-1">
+                    <div class="text-center text-muted mt-5" id="lib-empty-state">
+                        <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                        <h5>المكتبة فارغة</h5>
+                        <p class="small">قم برفع مراجعك الطبية (PDF). سيتم تنظيمها وحفظها بشكل دائم على جهازك بدون إنترنت.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In-App PDF Viewer -->
+            <div id="pdf-viewer-wrapper">
+                <div class="pdf-header">
+                    <h6 class="mb-0 text-truncate" id="current-pdf-title" style="max-width:60%;">مستعرض</h6>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="openPdfNative()" title="فتح في نافذة جديدة"><i class="fas fa-external-link-alt"></i></button>
+                        <button class="btn btn-sm btn-danger ms-1" onclick="closePdf()" title="إغلاق"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div id="viewer-container" class="flex-grow-1 bg-dark text-white d-flex flex-column align-items-center justify-content-center p-3"></div>
+            </div>
+        </div>
+
+        <!-- 3. Tasks -->
+        <div id="tasks" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-check-square text-primary ms-2"></i> المهام (مع المنبه)</h3><div class="card p-3 p-md-4 border-primary border-start border-4"><form id="task-form" class="row g-2 mb-3 align-items-center"><div class="col-md-7 col-12"><input type="text" id="task-input" class="form-control" placeholder="أضف مهمة..." required></div><div class="col-md-3 col-8"><select id="task-timer" class="form-select"><option value="0">بدون منبه</option><option value="15">تنبيه بعد 15 دقيقة</option><option value="30">تنبيه بعد نصف ساعة</option><option value="60">تنبيه بعد 1 ساعة</option></select></div><div class="col-md-2 col-4"><button type="submit" class="btn btn-primary w-100 fw-bold">إضافة</button></div></form><div id="tasks-list" class="list-group list-group-flush gap-2 mt-3"></div></div></div>
+
+        <!-- 4. Notes -->
+        <div id="notes" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-microphone text-success ms-2"></i> المذكرات (تدعم الصوت)</h3><div class="row"><div class="col-lg-4 mb-4"><div class="card p-4 h-100"><form id="note-form"><select id="note-dept" class="form-select mb-3" required><option value="" disabled selected>القسم...</option><option value="باطنة">باطنة</option><option value="جراحة">جراحة</option><option value="طوارئ">طوارئ</option></select><div class="input-group mb-3"><input type="text" id="note-title" class="form-control" placeholder="العنوان" required><span class="input-group-text mic-btn" onclick="startDictation('note-title')"><i class="fas fa-microphone"></i></span></div><div class="input-group mb-3"><textarea id="note-content" class="form-control" rows="4" placeholder="التفاصيل..." required></textarea><span class="input-group-text mic-btn" onclick="startDictation('note-content')"><i class="fas fa-microphone"></i></span></div><button type="submit" class="btn btn-success w-100 fw-bold">حفظ</button></form></div></div><div class="col-lg-8"><div class="row" id="notes-list"></div></div></div></div>
+
+        <!-- 5. SBAR Handover -->
+        <div id="sbar" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-exchange-alt text-warning ms-2"></i> تسليم الحالات (QR/SBAR)</h3><div class="card p-4 border-warning border-start border-4" id="sbar-container"><form id="sbar-form" class="row g-3"><div class="col-md-6"><label class="fw-bold">اسم المريض / السرير</label><div class="input-group"><input type="text" id="sbar-name" class="form-control"><span class="input-group-text mic-btn" onclick="startDictation('sbar-name')"><i class="fas fa-microphone"></i></span></div></div><div class="col-md-6"><label class="fw-bold text-primary">S - الموقف</label><div class="input-group"><input type="text" id="sbar-s" class="form-control"><span class="input-group-text mic-btn" onclick="startDictation('sbar-s')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-info">B - الخلفية</label><div class="input-group"><textarea id="sbar-b" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-b')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-warning">A - التقييم</label><div class="input-group"><textarea id="sbar-a" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-a')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12"><label class="fw-bold text-success">R - التوصية</label><div class="input-group"><textarea id="sbar-r" class="form-control" rows="2"></textarea><span class="input-group-text mic-btn" onclick="startDictation('sbar-r')"><i class="fas fa-microphone"></i></span></div></div><div class="col-12 text-center mt-3 p-3 bg-light rounded" id="qr-area" style="display:none;"><div id="qrcode" class="d-flex justify-content-center"></div></div><div class="col-12 d-flex justify-content-center gap-2 mt-4 flex-wrap" id="sbar-btns"><button type="button" class="btn btn-success fw-bold px-3" onclick="generateSBAR()"><i class="fab fa-whatsapp me-1"></i> نسخ للواتس</button><button type="button" class="btn btn-warning fw-bold px-3 text-dark" onclick="generateQRCode()"><i class="fas fa-qrcode me-1"></i> QR Code</button><button type="button" class="btn btn-danger fw-bold px-3" onclick="exportSBARPDF()"><i class="fas fa-file-pdf me-1"></i> PDF</button></div></form></div></div>
+
+        <!-- 6. Cases -->
+        <div id="cases" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-file-medical-alt text-secondary ms-2"></i> سجل الحالات</h3><div class="card p-4 mb-4"><form id="case-form" class="row g-3"><div class="col-md-4"><input type="text" class="form-control" id="case-diagnosis" placeholder="التشخيص" required></div><div class="col-md-4"><select class="form-select" id="case-dept" required><option value="" disabled selected>اختر التخصص...</option><option value="باطنة">باطنة</option><option value="جراحة">جراحة</option><option value="أطفال">أطفال</option><option value="نساء وتوليد">نساء وتوليد</option><option value="طوارئ">طوارئ</option></select></div><div class="col-md-4"><input type="text" class="form-control" id="case-demographics" placeholder="العمر/الجنس"></div><div class="col-12"><textarea class="form-control" id="case-learning" rows="2" placeholder="نقاط التعلم..." required></textarea></div><div class="col-12 text-end"><button type="submit" class="btn btn-dark fw-bold px-4">إضافة</button></div></form></div><div id="cases-list" class="row"></div></div>
+
+        <!-- 7. Analytics -->
+        <div id="analytics" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-chart-pie text-success ms-2"></i> إحصائيات الامتياز</h3><div class="row"><div class="col-md-6 mb-4"><div class="card p-4 h-100 shadow-sm"><h5 class="fw-bold mb-3 border-bottom pb-2">توزيع الحالات حسب التخصص</h5><div style="position: relative; height: 280px;"><canvas id="casesChart"></canvas></div></div></div><div class="col-md-6 mb-4"><div class="card p-4 h-100 shadow-sm"><h5 class="fw-bold mb-3 border-bottom pb-2">ملخص الإنجاز</h5><ul class="list-group list-group-flush"><li class="list-group-item d-flex justify-content-between">الحالات: <span class="badge bg-primary" id="stat-total-cases">0</span></li><li class="list-group-item d-flex justify-content-between">المذكرات: <span class="badge bg-success" id="stat-total-notes">0</span></li><li class="list-group-item d-flex justify-content-between">المهام: <span class="badge bg-info text-dark" id="stat-total-tasks">0</span></li></ul><button class="btn btn-outline-success fw-bold w-100 mt-3" onclick="generateShiftReport()"><i class="fas fa-file-pdf me-2"></i> تصدير التقرير PDF</button></div></div></div></div>
+
+        <!-- 8. Simulator -->
+        <div id="simulator" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-stethoscope text-info ms-2"></i> محاكي الطوارئ</h3><div class="card p-4 border-info border-start border-4"><div id="sim-start-screen"><h5 class="fw-bold mb-3">اختر سيناريو الحالة:</h5><div class="d-flex gap-3 flex-wrap"><button class="btn btn-outline-danger fw-bold px-4 py-3" onclick="startSimPro('dka')">⚡ DKA Crisis</button><button class="btn btn-outline-warning fw-bold px-4 py-3 text-dark" onclick="startSimPro('septic_shock')">🦠 Septic Shock</button><button class="btn btn-outline-primary fw-bold px-4 py-3" onclick="startSimPro('stemi')">🫀 STEMI</button></div></div><div id="sim-game-screen" style="display:none;"><div class="p-3 bg-light rounded mb-3 border"><h5 class="fw-bold text-dark" id="sim-q-title">العنوان</h5><p class="text-secondary small mb-0" id="sim-q-desc">الوصف...</p></div><div class="d-grid gap-2" id="sim-q-options"></div><div class="mt-3 p-3 rounded" id="sim-feedback-box" style="display:none;"></div><button class="btn btn-info mt-3 fw-bold text-dark" onclick="nextSimStage()" id="sim-next-btn" style="display:none;">التالي ➡️</button><button class="btn btn-secondary mt-3 fw-bold" onclick="resetSimPro()" id="sim-exit-btn" style="display:none;">خروج</button></div></div></div>
+
+        <!-- 9. Flashcards -->
+        <div id="flashcards" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-graduation-cap text-info ms-2"></i> بنك الأسئلة</h3><div class="card p-4 text-center border-info border-start border-4"><div class="p-4 bg-light rounded mb-3 shadow-sm"><h5 id="fc-question" class="fw-bold text-dark mb-0">السؤال...</h5></div><div class="p-3 bg-warning-subtle rounded mb-4" id="fc-answer-box" style="display:none;"><strong>الإجابة:</strong> <span id="fc-answer"></span></div><div class="d-flex justify-content-center gap-3"><button class="btn btn-outline-primary fw-bold px-4" onclick="toggleFCAnswer()">الإجابة</button><button class="btn btn-info fw-bold px-4 text-dark" onclick="nextFlashcard()">التالي ➡️</button></div></div></div>
+
+        <!-- 10. Interactions -->
+        <div id="interactions" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-ban text-danger ms-2"></i> التداخلات الدوائية</h3><div class="card p-4 border-danger border-start border-4"><div class="row g-3"><div class="col-md-6"><div class="p-3 bg-light rounded border"><h6 class="fw-bold text-danger">🚫 Calcium + Ceftriaxone</h6><p class="small text-muted mb-0">يُمنع خلطهما للأطفال (ترسبات قاتلة).</p></div></div><div class="col-md-6"><div class="p-3 bg-light rounded border"><h6 class="fw-bold text-danger">🚫 Phenytoin + Dextrose</h6><p class="small text-muted mb-0">يترسب في محاليل الجلوكوز (يُعطى في Saline).</p></div></div></div></div></div>
+
+        <!-- 11. Shock -->
+        <div id="shock" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-heart-pulse text-danger ms-2"></i> مؤشر الصدمة</h3><div class="card p-4 border-danger border-start border-4"><div class="mb-3"><label class="small fw-bold">HR</label><input type="number" id="shock-hr" class="form-control" oninput="calcShock()"></div><div class="mb-3"><label class="small fw-bold">SBP</label><input type="number" id="shock-sbp" class="form-control" oninput="calcShock()"></div><div class="p-3 bg-light rounded text-center"><h5>Shock Index: <span id="si-res" class="text-danger">--</span></h5><small id="si-class"></small></div></div></div>
+
+        <!-- 12. SOAP -->
+        <div id="soap" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-file-signature text-primary ms-2"></i> SOAP Notes</h3><div class="card p-4 border-primary border-start border-4" id="soap-container"><input type="text" id="soap-patient" class="form-control mb-2" placeholder="المريض"><textarea id="soap-s" class="form-control mb-2" rows="2" placeholder="Subjective"></textarea><textarea id="soap-o" class="form-control mb-2" rows="2" placeholder="Objective"></textarea><textarea id="soap-a" class="form-control mb-2" rows="2" placeholder="Assessment"></textarea><textarea id="soap-p" class="form-control mb-2" rows="2" placeholder="Plan"></textarea><div class="text-center mt-3" id="soap-btns"><button class="btn btn-primary me-2" onclick="generateSOAPText()">نسخ</button><button class="btn btn-danger" onclick="exportSOAPPDF()">PDF</button></div></div></div>
+
+        <!-- 13. Peds Fluids -->
+        <div id="pedsfluids" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-baby text-info ms-2"></i> سوائل الأطفال</h3><div class="card p-4 border-info border-start border-4"><input type="number" id="peds-w" class="form-control mb-2" placeholder="الوزن" oninput="calcPedsFluids()"><div class="p-3 bg-light rounded text-center">سوائل اليوم: <h5 class="fw-bold text-info mb-0"><span id="peds-fluid-res">--</span> ml</h5></div></div></div>
+
+        <!-- 14. ABX & Renal -->
+        <div id="abx" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-capsules text-success ms-2"></i> المضادات والكلى</h3><div class="row"><div class="col-md-6 mb-3"><div class="card p-4"><select id="abx-select" class="form-select mb-2" onchange="showAbxGuide()"><option value="" disabled selected>الحالة</option><option value="cap">CAP</option><option value="uti">UTI</option></select><div class="p-2 bg-light rounded small" id="abx-desc"></div></div></div><div class="col-md-6 mb-3"><div class="card p-4"><input type="number" id="cr-age" class="form-control mb-2" placeholder="العمر" oninput="calcCrCl()"><input type="number" id="cr-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcCrCl()"><input type="number" step="0.1" id="cr-scr" class="form-control mb-2" placeholder="Scr" oninput="calcCrCl()"><h5 class="text-primary">CrCl: <span id="cr-res">--</span></h5></div></div></div></div>
+
+        <!-- 15. Electrolytes -->
+        <div id="electrolytes" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-vial text-info ms-2"></i> الأملاح</h3><div class="card p-4"><input type="number" id="Na-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcNa()"><input type="number" id="Na-cur" class="form-control mb-2" placeholder="الحالي" oninput="calcNa()"><input type="number" id="Na-tar" class="form-control mb-2" placeholder="المستهدف" oninput="calcNa()"><h5 class="text-info">NaCl 3%: <span id="Na-res">--</span> ml</h5></div></div>
+
+        <!-- 16. Procedures -->
+        <div id="procedures" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-hands-helping text-primary ms-2"></i> الإجراءات</h3><div class="card p-4">CVC, NG tube, Foley catheter guidelines.</div></div>
+        <!-- 17. CPR -->
+        <div id="cpr" class="content-section"><h3 class="mb-4 fw-bold text-danger"><i class="fas fa-heartbeat text-danger ms-2"></i> CPR</h3><div class="card p-4 text-center cpr-card"><div class="cpr-timer" id="cpr-display">02:00</div><button id="cpr-start-btn" class="btn btn-danger" onclick="startCPR()">بدء</button></div></div>
+        <!-- 18. Drugs -->
+        <div id="drugs" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-pills text-primary ms-2"></i> أدوية الأطفال</h3><div class="card p-4"><input type="number" id="ped-wt" class="form-control mb-2" placeholder="الوزن" oninput="calcPeds()"><select id="ped-drug" class="form-select mb-2" onchange="calcPeds()"><option value="para250">Paracetamol</option></select><h5 id="ped-result" class="text-primary">--</h5></div></div>
+        <!-- 19. Calculators -->
+        <div id="calculators" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-calculator text-info ms-2"></i> حاسبات و ABG</h3><div class="card p-4"><div class="row g-2 mb-2"><div class="col-4"><input type="number" step="0.01" id="abg-ph" class="form-control" placeholder="pH" oninput="calcABG()"></div><div class="col-4"><input type="number" id="abg-pco2" class="form-control" placeholder="pCO2" oninput="calcABG()"></div><div class="col-4"><input type="number" id="abg-hco3" class="form-control" placeholder="HCO3" oninput="calcABG()"></div></div><h5 id="abg-result" class="text-danger">--</h5></div></div>
+        <!-- 20. Scores -->
+        <div id="scores" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-clipboard-list text-warning ms-2"></i> Scores</h3><div class="card p-4"><div class="score-item"><label>Confusion</label><input class="form-check-input" type="checkbox" id="curb-c" onchange="calcCURB()"></div><h5 id="curb-res" class="text-danger">0</h5></div></div>
+        <!-- 21. ECG -->
+        <div id="ecg" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-wave-square text-danger ms-2"></i> ECG</h3><div class="card p-4">STEMI, AFib, SVT.</div></div>
+
+        <!-- 22. AI -->
+        <div id="ai" class="content-section flex-active"><h3 class="mb-4 fw-bold" style="color:var(--purple);"><i class="fas fa-robot ms-2"></i> AI</h3><div class="card p-3 shadow-sm mb-3" id="api-key-setup"><input type="password" id="gemini-api-key" class="form-control mb-2" placeholder="API Key"><button class="btn btn-success" onclick="saveApiKey()">حفظ</button></div><div class="card p-0 shadow-sm border-0 d-flex flex-column chat-container" id="chat-interface" style="display:none!important; height:65vh;"><div class="card-header text-white p-2" style="background:var(--purple);"><button class="btn btn-sm btn-light float-end p-1 px-2" onclick="resetApiKey()"><i class="fas fa-cog"></i></button></div><div class="card-body chat-box" id="chat-box"></div><div class="card-footer bg-transparent p-2 border-top-0"><form id="chat-form" class="d-flex"><input type="text" id="chat-input" class="form-control me-2 rounded-pill" required><button type="submit" class="btn text-white rounded-circle" style="background:var(--purple); width:45px; height:45px;"><i class="fas fa-paper-plane"></i></button></form></div></div></div>
+
+        <!-- 23. Settings -->
+        <div id="settings" class="content-section"><h3 class="mb-4 fw-bold"><i class="fas fa-cog text-secondary ms-2"></i> الإعدادات</h3><div class="row"><div class="col-md-6 mb-3"><div class="card p-4 border-info border-start border-4 h-100" id="shifts"><h5 class="fw-bold mb-3">النبطشيات</h5><div class="d-flex gap-2 mb-3"><input type="date" id="shift-date" class="form-control"><select id="shift-type" class="form-select"><option value="morning">صباحي</option><option value="night">سهر</option><option value="off">إجازة</option></select><button class="btn btn-info fw-bold" onclick="addShift()">حفظ</button></div><div class="calendar" id="calendar-grid"></div></div></div><div class="col-md-6 mb-3"><div class="card p-4 border-primary border-start border-4 mb-3"><button class="btn btn-primary fw-bold w-100 mb-2" onclick="exportData()"><i class="fas fa-download"></i> تصدير</button><input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)"><button class="btn btn-outline-success fw-bold w-100" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> استرجاع</button></div><div class="card p-4 border-danger border-start border-4"><button class="btn btn-danger fw-bold w-100" onclick="clearAllData()"><i class="fas fa-trash-alt"></i> مسح كامل</button></div></div></div></div>
+        
+        <!-- Hidden Report -->
+        <div id="shift-report" class="shift-report-container" dir="rtl"><h2 style="text-align:center; color:#0d6efd;">تقرير النبطشية (V18 Ultimate)</h2><p><strong>التاريخ:</strong> <span id="rep-date"></span></p><h4>المهام:</h4><ul id="rep-tasks"></ul><h4>الحالات:</h4><div id="rep-cases"></div><h4>المذكرات:</h4><div id="rep-notes"></div></div>
+    </div>
+
+    <!-- Upload/Edit Book Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" dir="rtl"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: var(--bg-card); color: var(--text-main);"><div class="modal-header"><h5 class="modal-title fw-bold">بيانات المرجع</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="upload-book-form"><div class="mb-3"><label class="form-label fw-bold">اسم المرجع</label><input type="text" class="form-control" id="modal-book-title" required></div><div class="mb-3"><label class="form-label fw-bold">التصنيف</label><select class="form-select" id="modal-book-category"><option value="كتب طبية (Textbooks)">كتب طبية (Textbooks)</option><option value="إرشادات (Guidelines)">إرشادات طبية (Guidelines)</option><option value="خوارزميات (Algorithms)">خوارزميات (Algorithms)</option><option value="ملازم ومذكرات (Notes)">ملازم ومذكرات</option></select></div><div class="mb-3"><label class="form-label fw-bold">التاجات (Tags) - مفصولة بفاصلة</label><input type="text" class="form-control" id="modal-book-tags" placeholder="مثال: طوارئ, باطنة, أطفال"></div><button type="submit" class="btn btn-danger w-100 fw-bold">حفظ بالمكتبة الدائمة</button></form></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        try {
+            const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+            let isDark = localStorage.getItem('theme') === 'dark';
+            if(isDark) document.documentElement.setAttribute('data-theme', 'dark');
+            window.toggleDarkMode = function() { isDark = !isDark; document.documentElement.setAttribute('data-theme', isDark?'dark':'light'); localStorage.setItem('theme', isDark?'dark':'light'); }
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            window.showSection = function(id) {
+                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active', 'flex-active'));
+                document.querySelectorAll('.sidebar a, .nav-item-mob').forEach(el => el.classList.remove('active'));
+                document.getElementById(id).classList.add(['library', 'ai'].includes(id) ? 'flex-active' : 'active');
+                let dN = document.getElementById('nav-'+id); let mN = document.getElementById('mob-'+id);
+                if(dN) dN.classList.add('active'); if(mN) mN.classList.add('active'); else document.getElementById('mob-menu').classList.add('active');
+                updateDashboardStats(); if(id === 'ai') checkApiKey(); if(id === 'settings') renderCalendar(); if(id === 'analytics') renderAnalyticsChart(); if(id === 'library') renderLibrary();
+            }
+            window.toggleMobileMenu = function() { const m = document.getElementById('mobile-menu'); const o = document.getElementById('mobile-menu-overlay'); m.classList.toggle('open'); o.style.display = m.classList.contains('open') ? 'block' : 'none'; }
+            window.copyToClipboard = function(t) { navigator.clipboard.writeText(t).then(()=>{ Swal.fire({title:'تم النسخ!',icon:'success',toast:true,position:'top-end',showConfirmButton:false,timer:1500}); }); }
+
+            // VOICE
+            window.startDictation = function(inputId) {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { Swal.fire('غير مدعوم', 'متصفحك لا يدعم الإملاء الصوتي.', 'error'); return; }
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition; const rec = new SR(); rec.lang = 'ar-SA';
+                const inputEl = document.getElementById(inputId); const btnEl = inputEl.nextElementSibling;
+                if(btnEl) btnEl.classList.add('recording');
+                rec.onresult = function(e) { const text = e.results[0][0].transcript; if(inputEl.value) inputEl.value += " " + text; else inputEl.value = text; };
+                rec.onend = function() { if(btnEl) btnEl.classList.remove('recording'); }; rec.start();
+            }
+
+            // QR HANDOVER
+            window.generateQRCode = function() {
+                const sbarText = `🏥 تسليم: ${document.getElementById('sbar-name').value}\nS: ${document.getElementById('sbar-s').value}\nB: ${document.getElementById('sbar-b').value}\nA: ${document.getElementById('sbar-a').value}\nR: ${document.getElementById('sbar-r').value}`;
+                const qrArea = document.getElementById('qr-area'); const qrDiv = document.getElementById('qrcode');
+                qrDiv.innerHTML = ''; qrArea.style.display = 'block';
+                new QRCode(qrDiv, { text: sbarText, width: 180, height: 180 });
+            }
+            window.exportSBARPDF = function() { const el = document.getElementById('sbar-container'); const btns = document.getElementById('sbar-btns'); btns.style.display = 'none'; html2pdf().set({ margin: 10, filename: 'Handover_SBAR.pdf' }).from(el).save().then(() => { btns.style.display = 'flex'; }); }
+            window.generateSBAR = function() { generateQRCode(); }
+
+            // FLASHCARDS
+            const flashcardsData = [
+                { q: "ما هي الخطوة الأولى فوراً عند الاشتباه في مريض Anaphylaxis؟", a: "إعطاء Adrenaline 0.5 mg عضلياً (IM) في الفخذ فوراً." },
+                { q: "لماذا يُمنع Beta-blockers في مريض Cocaine chest pain؟", a: "لأنها تترك الألفا ريسبتورز بدون معارضة، مما يؤدي لارتفاع قاتل بضغط الدم." },
+                { q: "ما هو العلاج الفوري لحالة Hyperkalemia مع QRS متسع؟", a: "1. Calcium Gluconate لحماية القلب.\n2. Insulin + Glucose." }
+            ];
+            let fcIndex = 0;
+            window.toggleFCAnswer = function() { const box = document.getElementById('fc-answer-box'); box.style.display = box.style.display === 'none' ? 'block' : 'none'; }
+            window.nextFlashcard = function() { fcIndex = (fcIndex + 1) % flashcardsData.length; document.getElementById('fc-question').innerText = flashcardsData[fcIndex].q; document.getElementById('fc-answer').innerText = flashcardsData[fcIndex].a; document.getElementById('fc-answer-box').style.display = 'none'; }
+            document.getElementById('fc-question').innerText = flashcardsData[0].q; document.getElementById('fc-answer').innerText = flashcardsData[0].a;
+
+            // V18 ULTIMATE PRO LIBRARY SYSTEM (IndexedDB)
+            let db; let tempBlob = null; let currentBlobUrl = ""; let currentLibCategory = 'الكل';
+            const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+
+            const dbReq = indexedDB.open("InternHubLibraryUltimateDB", 2);
+            dbReq.onupgradeneeded = e => {
+                db = e.target.result;
+                if(!db.objectStoreNames.contains("books")) db.createObjectStore("books", { keyPath: "id" });
+            };
+            dbReq.onsuccess = e => { db = e.target.result; renderLibrary(); };
+
+            document.getElementById('pdf-upload').addEventListener('change', e => {
+                const f = e.target.files[0];
+                if(f && f.type === "application/pdf") {
+                    tempBlob = f;
+                    document.getElementById('modal-book-title').value = f.name.replace(/\.[^/.]+$/, "");
+                    document.getElementById('modal-book-tags').value = "";
+                    uploadModal.show();
+                }
+            });
+
+            document.getElementById('upload-book-form').addEventListener('submit', e => {
+                e.preventDefault();
+                if(!tempBlob || !db) return;
+                const newBook = {
+                    id: Date.now(),
+                    name: document.getElementById('modal-book-title').value.trim(),
+                    category: document.getElementById('modal-book-category').value,
+                    tags: document.getElementById('modal-book-tags').value.split(',').map(t => t.trim()).filter(t => t !== ""),
+                    favorite: false,
+                    size: (tempBlob.size / (1024*1024)).toFixed(1) + " MB",
+                    dateAdded: new Date().toLocaleDateString('ar-EG'),
+                    blob: tempBlob
+                };
+                const tx = db.transaction("books", "readwrite");
+                tx.objectStore("books").add(newBook);
+                tx.oncomplete = () => {
+                    uploadModal.hide(); tempBlob = null; renderLibrary();
+                    Swal.fire({ title: 'تم الحفظ!', text: 'تمت إضافة المرجع للمكتبة الدائمة.', icon: 'success', toast: true, position: 'top-end', timer: 1500 });
+                };
+            });
+
+            window.setLibCategory = function(cat, btn) {
+                currentLibCategory = cat;
+                document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderLibrary();
+            }
+
+            window.renderLibrary = function() {
+                if(!db) return;
+                const tx = db.transaction("books", "readonly");
+                const store = tx.objectStore("books");
+                store.getAll().onsuccess = function(e) {
+                    const books = e.target.result;
+                    const cont = document.getElementById('library-content');
+                    const emptyState = document.getElementById('lib-empty-state');
+                    const searchQ = document.getElementById('lib-search').value.toLowerCase();
+                    
+                    // Update Badges
+                    let cntAll = books.length;
+                    let cntFav = books.filter(b => b.favorite).length;
+                    let cntText = books.filter(b => b.category.includes('Textbooks')).length;
+                    let cntGuide = books.filter(b => b.category.includes('Guidelines')).length;
+                    let cntAlgo = books.filter(b => b.category.includes('Algorithms')).length;
+                    let cntNotes = books.filter(b => b.category.includes('Notes')).length;
+
+                    document.getElementById('cnt-all').innerText = cntAll;
+                    document.getElementById('cnt-fav').innerText = cntFav;
+                    document.getElementById('cnt-textbooks').innerText = cntText;
+                    document.getElementById('cnt-guidelines').innerText = cntGuide;
+                    document.getElementById('cnt-algorithms').innerText = cntAlgo;
+                    document.getElementById('cnt-notes').innerText = cntNotes;
+
+                    cont.innerHTML = '';
+                    let filtered = books.filter(b => {
+                        const matchSearch = b.name.toLowerCase().includes(searchQ) || b.tags.some(t => t.toLowerCase().includes(searchQ));
+                        let matchCat = true;
+                        if(currentLibCategory === 'المفضلة') matchCat = b.favorite === true;
+                        else if(currentLibCategory !== 'الكل') matchCat = b.category === currentLibCategory;
+                        return matchSearch && matchCat;
+                    });
+
+                    if(filtered.length === 0) {
+                        cont.appendChild(emptyState);
+                        emptyState.style.display = 'block';
+                        return;
+                    }
+                    emptyState.style.display = 'none';
+
+                    filtered.sort((a,b) => (b.favorite === true) - (a.favorite === true));
+
+                    filtered.forEach(b => {
+                        let tagsHtml = b.tags.map(t => `<span class="badge bg-secondary me-1" style="font-size:0.7rem;">#${t}</span>`).join('');
+                        let card = document.createElement('div');
+                        card.className = 'card lib-card p-3 shadow-sm mb-2 d-flex flex-row justify-content-between align-items-center';
+                        card.style.cursor = 'pointer';
+                        card.innerHTML = `
+                            <div class="d-flex align-items-center w-75" onclick="openBookPro(${b.id})">
+                                <i class="fas fa-file-pdf fa-2x text-danger ms-3"></i>
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-truncate">${b.name}</h6>
+                                    <div class="mb-1">${tagsHtml}</div>
+                                    <small class="text-muted">${b.category} | ${b.size} | ${b.dateAdded}</small>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 align-items-center">
+                                <i class="fas fa-star fav-star ${b.favorite?'text-warning':'text-secondary'}" onclick="toggleFavPro(${b.id}, event)" title="المفضلة"></i>
+                                <button class="btn btn-sm btn-light text-danger border" onclick="deleteBookPro(${b.id}, event)" title="حذف"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                        cont.appendChild(card);
+                    });
+                };
+            }
+
+            window.toggleFavPro = function(id, e) {
+                e.stopPropagation();
+                const tx = db.transaction("books", "readwrite");
+                const store = tx.objectStore("books");
+                store.get(id).onsuccess = function(ev) {
+                    let b = ev.target.result;
+                    b.favorite = !b.favorite;
+                    store.put(b).onsuccess = () => renderLibrary();
+                }
+            }
+
+            window.deleteBookPro = function(id, e) {
+                e.stopPropagation();
+                Swal.fire({ title: 'حذف المرجع؟', icon: 'warning', showCancelButton: true, confirmButtonText: 'حذف', confirmButtonColor: '#dc3545' }).then(r => {
+                    if(r.isConfirmed) {
+                        const tx = db.transaction("books", "readwrite");
+                        tx.objectStore("books").delete(id);
+                        tx.oncomplete = () => renderLibrary();
+                    }
+                });
+            }
+
+            window.openBookPro = function(id) {
+                const tx = db.transaction("books", "readonly");
+                tx.objectStore("books").get(id).onsuccess = function(e) {
+                    let b = e.target.result;
+                    if(b && b.blob) openPdf(URL.createObjectURL(b.blob), b.name);
+                }
+            }
+
+            // Standard tools & Data logic
+            window.openPdf = function(url, title) {
+                document.getElementById('library-dashboard').style.display = 'none';
+                document.getElementById('pdf-viewer-wrapper').style.display = 'flex';
+                document.getElementById('current-pdf-title').innerText = title;
+                currentBlobUrl = url;
+                const mob = /Android|iPhone/i.test(navigator.userAgent);
+                document.getElementById('viewer-container').innerHTML = mob ? `<button class="btn btn-info fw-bold btn-lg mt-3" onclick="openPdfNative()"><i class="fas fa-book-open"></i> افتح المرجع هنا</button>` : `<embed src="${url}" type="application/pdf" width="100%" height="100%"></embed>`;
+            }
+            window.closePdf = function() { document.getElementById('pdf-viewer-wrapper').style.display='none'; document.getElementById('library-dashboard').style.display='flex'; document.getElementById('viewer-container').innerHTML=''; currentBlobUrl=""; }
+            window.openPdfNative = function() { if(currentBlobUrl) window.open(currentBlobUrl, '_blank'); }
+
+            window.calcShock = function() { const hr = parseFloat(document.getElementById('shock-hr').value); const sbp = parseFloat(document.getElementById('shock-sbp').value); if(hr>0 && sbp>0) { let si = (hr / sbp).toFixed(2); document.getElementById('si-res').innerText = si; document.getElementById('si-class').innerText = si>0.9?"⚠️ خطر صدمة!":"طبيعي"; } }
+            window.generateSOAPText = function() { copyToClipboard(`SOAP: ${document.getElementById('soap-patient').value}\nS:${document.getElementById('soap-s').value}`); }
+            window.exportSOAPPDF = function() { html2pdf().from(document.getElementById('soap-container')).save('SOAP.pdf'); }
+
+            let tasks = JSON.parse(localStorage.getItem('internTasks')) || []; let notes = JSON.parse(localStorage.getItem('internNotes')) || []; let cases = JSON.parse(localStorage.getItem('internCases')) || []; let shifts = JSON.parse(localStorage.getItem('internShifts')) || {};
+            function saveData() { localStorage.setItem('internTasks', JSON.stringify(tasks)); localStorage.setItem('internNotes', JSON.stringify(notes)); localStorage.setItem('internCases', JSON.stringify(cases)); localStorage.setItem('internShifts', JSON.stringify(shifts)); updateDashboardStats(); }
+            function updateDashboardStats() { document.getElementById('dash-tasks-count').innerText = tasks.filter(t=>!t.completed).length; document.getElementById('dash-notes-count').innerText = notes.length; }
+            
+            window.renderTasks = function() { const list = document.getElementById('tasks-list'); list.innerHTML = ''; tasks.forEach((t, i) => { list.innerHTML += `<div class="list-group-item task-item rounded mb-2 ${t.completed ? 'completed' : ''}"><div><input class="form-check-input me-3 mt-0" type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${i})"> <span>${t.text}</span></div><button class="btn btn-sm btn-light text-danger border" onclick="deleteTask(${i})"><i class="fas fa-trash"></i></button></div>`; }); }
+            document.getElementById('task-form').addEventListener('submit', (e) => { e.preventDefault(); tasks.push({ text: document.getElementById('task-input').value, completed: false }); document.getElementById('task-input').value = ''; saveData(); renderTasks(); }); 
+            window.toggleTask = function(i) { tasks[i].completed = !tasks[i].completed; saveData(); renderTasks(); }; window.deleteTask = function(i) { tasks.splice(i, 1); saveData(); renderTasks(); }
+            
+            window.renderNotes = function() { const list = document.getElementById('notes-list'); list.innerHTML = ''; notes.forEach((n, i) => { list.innerHTML += `<div class="col-md-6 mb-3"><div class="card h-100 shadow-sm"><div class="card-body"><h6 class="fw-bold text-primary d-flex justify-content-between">${n.title} <span class="badge bg-secondary">${n.dept}</span></h6><p class="small" style="white-space: pre-wrap;">${n.content}</p><button class="btn btn-sm btn-outline-danger w-100 mt-2" onclick="deleteNote(${i})"><i class="fas fa-trash"></i></button></div></div></div>`; }); }
+            document.getElementById('note-form').addEventListener('submit', (e) => { e.preventDefault(); notes.push({ dept: document.getElementById('note-dept').value, title: document.getElementById('note-title').value, content: document.getElementById('note-content').value }); document.getElementById('note-form').reset(); saveData(); renderNotes(); }); window.deleteNote = function(i) { notes.splice(i, 1); saveData(); renderNotes(); }
+            
+            window.renderCases = function() { const list = document.getElementById('cases-list'); list.innerHTML = ''; cases.forEach((c, i) => { list.innerHTML += `<div class="col-md-6 mb-3"><div class="card h-100 shadow-sm border-start border-4 border-warning"><div class="card-body"><h5 class="fw-bold text-warning mb-2">${c.diagnosis}</h5><p class="small mb-2"><strong>التخصص:</strong> ${c.dept} | <strong>المريض:</strong> ${c.demographics}</p><p class="small bg-light p-2 rounded text-dark" style="white-space: pre-wrap;">${c.learning}</p><button class="btn btn-sm btn-light text-danger w-100 border" onclick="deleteCase(${i})"><i class="fas fa-trash"></i></button></div></div></div>`; }); }
+            document.getElementById('case-form').addEventListener('submit', (e) => { e.preventDefault(); cases.push({ diagnosis: document.getElementById('case-diagnosis').value, dept: document.getElementById('case-dept').value, demographics: document.getElementById('case-demographics').value, learning: document.getElementById('case-learning').value }); document.getElementById('case-form').reset(); saveData(); renderCases(); }); window.deleteCase = function(i) { cases.splice(i, 1); saveData(); renderCases(); }
+
+            window.generateShiftReport = function() {
+                document.getElementById('rep-date').innerText = new Date().toLocaleString('ar-EG');
+                const tList = document.getElementById('rep-tasks'); tList.innerHTML = '';
+                tasks.filter(t=>t.completed).forEach(t => { tList.innerHTML += `<li>${t.text}</li>`; });
+                if(tList.innerHTML==='') tList.innerHTML='<li>لا توجد مهام منجزة</li>';
+                const cList = document.getElementById('rep-cases'); cList.innerHTML = '';
+                cases.forEach(c => { cList.innerHTML += `<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;"><b>${c.diagnosis}</b> (${c.dept})<br>${c.learning}</div>`; });
+                const nList = document.getElementById('rep-notes'); nList.innerHTML = '';
+                notes.forEach(n => { nList.innerHTML += `<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;"><b>${n.title}</b><br>${n.content}</div>`; });
+                const el = document.getElementById('shift-report'); el.style.display = 'block';
+                html2pdf().set({ margin: 15, filename: 'Shift_Report.pdf' }).from(el).save().then(()=>{ el.style.display = 'none'; });
+            }
+
+            // Analytics Chart
+            let myChart = null;
+            window.renderAnalyticsChart = function() {
+                document.getElementById('stat-total-cases').innerText = cases.length;
+                document.getElementById('stat-total-notes').innerText = notes.length;
+                document.getElementById('stat-total-tasks').innerText = tasks.filter(t=>!t.completed).length;
+                const deptCounts = {}; cases.forEach(c => { let d = c.dept || 'أخرى'; deptCounts[d] = (deptCounts[d] || 0) + 1; });
+                const ctx = document.getElementById('casesChart').getContext('2d');
+                if(myChart) myChart.destroy();
+                myChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(deptCounts).length ? Object.keys(deptCounts) : ['لا توجد حالات'], datasets: [{ data: Object.values(deptCounts).length ? Object.values(deptCounts) : [1], backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#0dcaf0'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+            }
+
+            window.renderCalendar = function() { const cal = document.getElementById('calendar-grid'); if(!cal)return; cal.innerHTML = ''; const today = new Date(); const m = today.getMonth(); const y = today.getFullYear(); const daysInMonth = new Date(y, m + 1, 0).getDate(); ['أح', 'إث', 'ثلا', 'أر', 'خم', 'جم', 'سب'].forEach(d => { cal.innerHTML += `<div class="cal-header">${d}</div>`; }); let firstDay = new Date(y, m, 1).getDay(); for(let i=0; i<firstDay; i++) cal.innerHTML += `<div></div>`; for(let i=1; i<=daysInMonth; i++) { let dateStr = `${y}-${(m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`; let cls = "cal-day"; if(shifts[dateStr]) cls += ` shift-${shifts[dateStr]}`; if(i === today.getDate()) cls += " border-primary border-2 fw-bold"; cal.innerHTML += `<div class="${cls}" onclick="deleteShift('${dateStr}')">${i}</div>`; } }
+            window.addShift = function() { const d = document.getElementById('shift-date').value; const t = document.getElementById('shift-type').value; if(d) { shifts[d] = t; saveData(); renderCalendar(); } }
+            window.deleteShift = function(dateStr) { if(shifts[dateStr]) { Swal.fire({title:'مسح النبطشية؟', showCancelButton:true, confirmButtonText:'نعم'}).then(r=>{ if(r.isConfirmed){ delete shifts[dateStr]; saveData(); renderCalendar(); } }); } }
+
+            // Settings & Export/Import
+            window.exportData = function() { const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({tasks:tasks,notes:notes,cases:cases,shifts:shifts}))); dl.setAttribute("download", "InternHub_V18_Backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
+            window.importData = function(e) { const f = e.target.files[0]; if(!f)return; const r = new FileReader(); r.onload = function(ev){ try{const data=JSON.parse(ev.target.result); if(data.tasks){tasks=data.tasks;notes=data.notes;cases=data.cases;if(data.shifts)shifts=data.shifts; saveData(); renderTasks(); renderNotes(); renderCases(); renderCalendar(); Swal.fire('تم!', '', 'success');}}catch(err){} }; r.readAsText(f); }
+            window.clearAllData = function() { Swal.fire({ title: 'تأكيد المسح؟', icon: 'warning', showCancelButton: true }).then((r) => { if(r.isConfirmed) { tasks=[]; notes=[]; cases=[]; shifts={}; saveData(); renderTasks(); renderNotes(); renderCases(); renderCalendar(); Swal.fire('تم', '', 'success'); } }); }
+
+            // AI
+            let apiKey = localStorage.getItem('geminiApiKey');
+            window.checkApiKey = function() { if(apiKey) { document.getElementById('api-key-setup').style.display='none'; document.getElementById('chat-interface').style.setProperty('display','flex','important'); } else { document.getElementById('api-key-setup').style.display='block'; document.getElementById('chat-interface').style.setProperty('display','none','important'); } }
+            window.saveApiKey = function() { apiKey = document.getElementById('gemini-api-key').value.trim(); if(apiKey){ localStorage.setItem('geminiApiKey', apiKey); checkApiKey(); } }
+            window.resetApiKey = function() { localStorage.removeItem('geminiApiKey'); apiKey=null; checkApiKey(); }
+            document.getElementById('chat-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
+                const chatBox = document.getElementById('chat-box'); chatBox.innerHTML += `<div class="chat-msg msg-user shadow-sm">${msg}</div>`; input.value = '';
+                const loadId = 'l'+Date.now(); chatBox.innerHTML += `<div id="${loadId}" class="chat-msg msg-ai text-muted"><i class="fas fa-spinner fa-spin"></i> أبحث...</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: "أجب باختصار كطبيب." }]} }) });
+                    document.getElementById(loadId).remove(); if(!res.ok) throw new Error();
+                    const data = await res.json();
+                    let html = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                    chatBox.innerHTML += `<div class="chat-msg msg-ai shadow-sm">${html}</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+                } catch(err) { document.getElementById(loadId).remove(); chatBox.innerHTML += `<div class="chat-msg msg-ai text-danger">خطأ في الاتصال</div>`; }
+            });
+
+            // Init
+            renderTasks(); renderNotes(); renderCases(); showSection('dashboard');
+        } catch (e) { alert("خطأ في التحميل!"); console.error(e); }
+    </script>
+</body>
+</html>
